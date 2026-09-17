@@ -15,6 +15,7 @@ C++20, Direct3D 11, no third-party code — only the Windows SDK (`scrnsave.lib`
 | `DVDBounce.scr` | Bouncing DVD-style logo | Generic disc logo (or your image) recolours on each bounce and counts corner hits |
 | `FlyingWindows.scr` | Flying Windows (Win 3.1 / 95) | Generic four-pane emblems (recolourable, or your image) stream out of the vanishing point |
 | `Marquee.scr` | Marquee (Win 3.1 - XP) | Scrolling text in any font, random or centred height, colours, mirror |
+| `Fireworks.scr` | Fireworks | Rockets burst into peonies, chrysanthemums, rings, willows and crackles with trails and bloom |
 
 ## Building
 

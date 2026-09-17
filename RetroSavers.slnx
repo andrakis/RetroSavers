@@ -13,6 +13,7 @@
     <Project Path="Savers/DVDBounce/DVDBounce.vcxproj" />
     <Project Path="Savers/FlyingWindows/FlyingWindows.vcxproj" />
     <Project Path="Savers/Marquee/Marquee.vcxproj" />
+    <Project Path="Savers/Fireworks/Fireworks.vcxproj" />
   </Folder>
   <Folder Name="/Tools/">
     <Project Path="tools/PreviewHost/PreviewHost.vcxproj" />

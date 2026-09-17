@@ -61,7 +61,7 @@ Each entry: what it renders · algorithm · Core reuse · settings. Effort S/M/L
   chunked at 8192 px for long strings. **C1** with `AlphaBlend`; background via `ClearColor()`.
   Mirror option = flipped uvRect.
   Settings: Text, Font, Size, Speed, Position, Text colour, Background colour, Mirror.
-- [ ] **Fireworks** (M) — *Fireworks.* SoA particle pool: rockets launch from the bottom at a
+- [x] **Fireworks** (M) — *Fireworks.* SoA particle pool: rockets launch from the bottom at a
   Poisson rate and burst into peony / chrysanthemum (trailing sub-sparks) / ring / willow (long
   life) / crackle. Gravity, drag, life. **C1** + `SoftDot` + `Additive()` into **C3**, half-res
   Gaussian bloom composite (Aurora pass structure). Colour via `HsvToRgb`.

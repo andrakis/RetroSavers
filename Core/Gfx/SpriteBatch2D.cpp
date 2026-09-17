@@ -31,6 +31,11 @@ void SpriteBatch2D::Begin(int viewportWidth, int viewportHeight) {
 }
 
 void SpriteBatch2D::End(Device& device, const Texture* texture, ID3D11BlendState* blend, ID3D11PixelShader* psOverride, ID3D11SamplerState* sampler) {
+    const Texture* tex = (texture && texture->Valid()) ? texture : &m_white;
+    End(device, tex->SRV(), blend, psOverride, sampler);
+}
+
+void SpriteBatch2D::End(Device& device, ID3D11ShaderResourceView* srv, ID3D11BlendState* blend, ID3D11PixelShader* psOverride, ID3D11SamplerState* sampler) {
     if (m_sprites.empty()) return;
     ID3D11DeviceContext* ctx = device.Ctx();
     m_vb.Update(device, m_sprites.data(), m_sprites.size());
@@ -46,8 +51,7 @@ void SpriteBatch2D::End(Device& device, const Texture* texture, ID3D11BlendState
     ctx->PSSetShader(psOverride ? psOverride : m_ps.Get(), nullptr, 0);
     ctx->GSSetShader(nullptr, nullptr, 0);
     m_cb.BindVS(ctx, 0);
-    const Texture* tex = (texture && texture->Valid()) ? texture : &m_white;
-    tex->BindPS(ctx, 0);
+    ctx->PSSetShaderResources(0, 1, &srv);
     ID3D11SamplerState* s = sampler ? sampler : m_states.LinearClamp();
     ctx->PSSetSamplers(0, 1, &s);
     ctx->DrawInstanced(6, static_cast<UINT>(m_sprites.size()), 0, 0);

@@ -33,6 +33,9 @@ public:
     // receives the same PSIn (pos, uv, color); sampler defaults to linear clamp.
     void End(Device& device, const Texture* texture = nullptr, ID3D11BlendState* blend = nullptr,
              ID3D11PixelShader* psOverride = nullptr, ID3D11SamplerState* sampler = nullptr);
+    // Same, sampling an arbitrary SRV (e.g. a RenderTexture) in slot 0.
+    void End(Device& device, ID3D11ShaderResourceView* srv, ID3D11BlendState* blend,
+             ID3D11PixelShader* psOverride = nullptr, ID3D11SamplerState* sampler = nullptr);
 
     size_t Count() const { return m_sprites.size(); }
     const States& GetStates() const { return m_states; }
