@@ -135,7 +135,7 @@ Each entry: what it renders · algorithm · Core reuse · settings. Effort S/M/L
 
 ## Tier 3 — large or lower value
 
-- [ ] **FlyingObjects** (L) — *3D Flying Objects*, Style combo: Ribbon / Two Ribbons (ring buffer
+- [x] **FlyingObjects** (L) — *3D Flying Objects*, Style combo: Ribbon / Two Ribbons (ring buffer
   strip behind a Lissajous emitter), Twist (band rotated by `k·z + ωt`), Splash (grid ripple),
   Explode (de-indexed sphere triangles flying along normals and reassembling), Textured Flag (grid
   sine wave growing toward the free edge, `Emblem` or user image), Logo (four `Box` panes). All on

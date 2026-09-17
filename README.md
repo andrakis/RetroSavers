@@ -28,6 +28,7 @@ C++20, Direct3D 11, no third-party code — only the Windows SDK (`scrnsave.lib`
 | `Attractors.scr` | Strange attractors | Lorenz, Rössler, Aizawa, Thomas, Halvorsen: thousands of RK4 particles, orbiting camera, colour by speed / height / hue |
 | `Gears.scr` | glxgears | The three meshing gears from gears.c, drifting view, wireframe, frame counter |
 | `RibbonsVista.scr` | Ribbons (Vista / 7) | Wide glossy ribbons twisting across the screen, steered by noise, trails that slowly fade |
+| `FlyingObjects.scr` | 3D Flying Objects (NT / 95 Plus!) | Ribbon, two ribbons, twist, splash, explode, textured flag, logo; rainbow / solid / checker |
 
 ## Building
 
