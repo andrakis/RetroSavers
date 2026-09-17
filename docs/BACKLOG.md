@@ -141,7 +141,7 @@ Each entry: what it renders · algorithm · Core reuse · settings. Effort S/M/L
   sine wave growing toward the free edge, `Emblem` or user image), Logo (four `Box` panes). All on
   **C5** dynamic meshes, `CullNone`, `ComputeNormals` per frame.
   Settings: Style, Colour mode, Texture, Resolution, Speed, Size, Wireframe.
-- [ ] **Energy** (M) — *Windows Energy (Vista).* 60–120 streamers `y = A·sin(kx+φ+ωt) + fbm` as
+- [x] **Energy** (M) — *Windows Energy (Vista).* 60–120 streamers `y = A·sin(kx+φ+ωt) + fbm` as
   thin strips (**C4**), additive into **C3**, half-res bloom; blue→cyan→white palette.
   Settings: Streamers, Amplitude, Speed, Tint, Bloom.
 - [ ] **AfterDark** (S–M) — one saver, Mode combo, to save boilerplate: *Starry Night* (twinkling

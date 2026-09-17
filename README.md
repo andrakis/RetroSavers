@@ -29,6 +29,7 @@ C++20, Direct3D 11, no third-party code — only the Windows SDK (`scrnsave.lib`
 | `Gears.scr` | glxgears | The three meshing gears from gears.c, drifting view, wireframe, frame counter |
 | `RibbonsVista.scr` | Ribbons (Vista / 7) | Wide glossy ribbons twisting across the screen, steered by noise, trails that slowly fade |
 | `FlyingObjects.scr` | 3D Flying Objects (NT / 95 Plus!) | Ribbon, two ribbons, twist, splash, explode, textured flag, logo; rainbow / solid / checker |
+| `Energy.scr` | Windows Energy (Vista) | A bundle of glowing streamers waving across the screen with bloom and motion streaks; tintable |
 
 ## Building
 
