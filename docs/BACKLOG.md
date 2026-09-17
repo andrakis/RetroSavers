@@ -29,7 +29,7 @@ Built once; listed in the order Tier 1 needs them. Tier 1 needs C1, C2, C3, C9, 
 | C7 | `Core\Gfx\ImageLoader` (WIC → `Image`, EXIF rotate, downscale) + `CoInitializeEx` on the render thread | Falls back to `BmpReader`. Decode off-thread for Photos; upload on the render thread only. | DVD / Flying Windows image override, Photos, Flag, 3D Text texture | [x] |
 | C10 | `TextureFactory`: `Emblem` (generic wavy four-pane flag), `SoftDot` (radial alpha), `Checker(w,h,cellsX,cellsY,a,b)`, `DiscLogo`; later `Toaster`/`Toast` sprites and `Primitives::Gear` | | Flying Windows, DVD, Boing, Fireworks/Flurry, Toasters, glxgears | [x] (Toaster/Toast pending) |
 | C11 | `States`: `PremultipliedAlpha()`, `PointWrap()` | Trivial. | AA text, Bubbles, Life | [x] |
-| C4 | `LineRenderer2D`: `Triangle`/`Quad`/`Strip` as a second `TRIANGLELIST` batch | | Ribbons, Energy, Starry Night, Boing grid/shadow | [ ] |
+| C4 | `LineRenderer2D`: `Triangle`/`Quad`/`Strip` as a second `TRIANGLELIST` batch | | Ribbons, Energy, Starry Night, Boing grid/shadow | [x] |
 | C5 | `Mesh::CreateDynamic` + `Mesh::Update(MeshData)` | `DYNAMIC`, `WRITE_DISCARD`. | Flying Objects, CPU FlowerBox | [x] |
 | C6 | `Forward`: public `BindMaterial(ctx, material, world)` + `PixelShader()` getter | A saver can bind its own VS but reuse `PerFrame`/`PerObject` and `Phong_ps`. | FlowerBox morph VS | [ ] |
 | C8 | `Core\Gfx\FontMesh` (DirectWrite outline → D2D `Tessellate` + `Simplify` → extruded `MeshData`) | See 3D Text. | 3D Text | [x] |
@@ -128,7 +128,7 @@ Each entry: what it renders · algorithm · Core reuse · settings. Effort S/M/L
   quads, bore), three gears with the classic ratios and offsets, `Forward` single white light,
   view `(20°,30°)` drifting; optional FPS via `TextImage`.
   Settings: Speed, Colours ×3, Wireframe, Auto-rotate, Show FPS.
-- [ ] **Ribbons** (M) — *Ribbons (Vista / 7).* Heads steered by fbm noise, width modulated by
+- [x] **Ribbons** (M) — shipped as `RibbonsVista` (Windows has its own `Ribbons.scr`). — *Ribbons (Vista / 7).* Heads steered by fbm noise, width modulated by
   `sin(twist)` to fake the 3D turn, glossy cross-width shading, quads appended via **C4** into
   **C3** with very slow fade and periodic full fade-out.
   Settings: Count, Width, Persistence, Speed, Colour mode.

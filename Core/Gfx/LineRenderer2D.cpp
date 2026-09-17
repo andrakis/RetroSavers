@@ -14,12 +14,27 @@ void LineRenderer2D::Create(Device& device) {
     m_cb.Create(device);
     m_states.Create(device);
     m_vb.Reserve(device, 4096);
+    m_triVb.Reserve(device, 4096);
 }
 
 void LineRenderer2D::Begin(int viewportWidth, int viewportHeight) {
     m_width = viewportWidth > 0 ? viewportWidth : 1;
     m_height = viewportHeight > 0 ? viewportHeight : 1;
     m_verts.clear();
+    m_tris.clear();
+}
+
+void LineRenderer2D::Triangle(const DirectX::XMFLOAT2& a, const DirectX::XMFLOAT2& b, const DirectX::XMFLOAT2& c,
+                              const DirectX::XMFLOAT4& ca, const DirectX::XMFLOAT4& cb, const DirectX::XMFLOAT4& cc) {
+    m_tris.push_back({ { a.x, a.y, 0 }, ca });
+    m_tris.push_back({ { b.x, b.y, 0 }, cb });
+    m_tris.push_back({ { c.x, c.y, 0 }, cc });
+}
+
+void LineRenderer2D::Quad(const DirectX::XMFLOAT2& a, const DirectX::XMFLOAT2& b, const DirectX::XMFLOAT2& c, const DirectX::XMFLOAT2& d,
+                          const DirectX::XMFLOAT4& ca, const DirectX::XMFLOAT4& cb, const DirectX::XMFLOAT4& cc, const DirectX::XMFLOAT4& cd) {
+    Triangle(a, b, c, ca, cb, cc);
+    Triangle(a, c, d, ca, cc, cd);
 }
 
 void LineRenderer2D::Line(float x0, float y0, float x1, float y1, const DirectX::XMFLOAT4& color) {
@@ -34,22 +49,31 @@ void LineRenderer2D::Polyline(const DirectX::XMFLOAT2* points, size_t count, boo
 }
 
 void LineRenderer2D::End(Device& device, ID3D11BlendState* blend) {
-    if (m_verts.empty()) return;
+    if (m_verts.empty() && m_tris.empty()) return;
     ID3D11DeviceContext* ctx = device.Ctx();
-    m_vb.Update(device, m_verts.data(), m_verts.size());
     ViewportCB cb{ { static_cast<float>(m_width), static_cast<float>(m_height), 0, 0 } };
     m_cb.Update(ctx, cb);
 
     m_states.Set2D(ctx, blend ? blend : m_states.Opaque());
     ctx->IASetInputLayout(m_layout.Get());
-    ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-    m_vb.Bind(ctx, 0);
     ctx->VSSetShader(m_vs.Get(), nullptr, 0);
     ctx->PSSetShader(m_ps.Get(), nullptr, 0);
     ctx->GSSetShader(nullptr, nullptr, 0);
     m_cb.BindVS(ctx, 0);
-    ctx->Draw(static_cast<UINT>(m_verts.size()), 0);
-    m_verts.clear();
+    if (!m_tris.empty()) {
+        m_triVb.Update(device, m_tris.data(), m_tris.size());
+        ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        m_triVb.Bind(ctx, 0);
+        ctx->Draw(static_cast<UINT>(m_tris.size()), 0);
+        m_tris.clear();
+    }
+    if (!m_verts.empty()) {
+        m_vb.Update(device, m_verts.data(), m_verts.size());
+        ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+        m_vb.Bind(ctx, 0);
+        ctx->Draw(static_cast<UINT>(m_verts.size()), 0);
+        m_verts.clear();
+    }
 }
 
 } // namespace rs
