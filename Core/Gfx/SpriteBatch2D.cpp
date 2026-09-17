@@ -32,10 +32,10 @@ void SpriteBatch2D::Begin(int viewportWidth, int viewportHeight) {
 
 void SpriteBatch2D::End(Device& device, const Texture* texture, ID3D11BlendState* blend, ID3D11PixelShader* psOverride, ID3D11SamplerState* sampler) {
     const Texture* tex = (texture && texture->Valid()) ? texture : &m_white;
-    End(device, tex->SRV(), blend, psOverride, sampler);
+    EndWithSRV(device, tex->SRV(), blend, psOverride, sampler);
 }
 
-void SpriteBatch2D::End(Device& device, ID3D11ShaderResourceView* srv, ID3D11BlendState* blend, ID3D11PixelShader* psOverride, ID3D11SamplerState* sampler) {
+void SpriteBatch2D::EndWithSRV(Device& device, ID3D11ShaderResourceView* srv, ID3D11BlendState* blend, ID3D11PixelShader* psOverride, ID3D11SamplerState* sampler) {
     if (m_sprites.empty()) return;
     ID3D11DeviceContext* ctx = device.Ctx();
     m_vb.Update(device, m_sprites.data(), m_sprites.size());

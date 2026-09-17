@@ -289,7 +289,7 @@ void FireworksSaver::Render(Device& device, SwapChain& swap) {
         float k = 0.12f * m_settings.bloom;
         m_sprites.Begin(m_ctx.width, m_ctx.height);
         m_sprites.Push(m_ctx.width * 0.5f, m_ctx.height * 0.5f, static_cast<float>(m_ctx.width), static_cast<float>(m_ctx.height), { k, k, k, 1 });
-        m_sprites.End(device, m_bloom.SRV(), states.Additive());
+        m_sprites.EndWithSRV(device, m_bloom.SRV(), states.Additive());
     }
 }
 
