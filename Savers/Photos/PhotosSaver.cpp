@@ -257,7 +257,7 @@ void PhotosSaver::Render(Device& device, SwapChain&) {
             empty = m_scanned && m_files.empty();
         }
         if (empty || m_noticeTimer > 4.0f) {
-            std::wstring text = empty ? L"No pictures found in " + m_settings.folder : L"Loading pictures…";
+            std::wstring text = empty ? L"No pictures found in " + m_settings.folder : L"Loading pictures\x2026";
             UpdateCaption(device, text);
             float w = static_cast<float>(m_caption.Width()), h = static_cast<float>(m_caption.Height());
             m_sprites.Begin(m_ctx.width, m_ctx.height);

@@ -9,7 +9,7 @@ using namespace rs;
 
 namespace {
 
-const wchar_t* const kAttractors[] = { L"Lorenz", L"Rössler", L"Aizawa", L"Thomas", L"Halvorsen", L"Cycle through all" };
+const wchar_t* const kAttractors[] = { L"Lorenz", L"R\x00f6ssler", L"Aizawa", L"Thomas", L"Halvorsen", L"Cycle through all" };
 const wchar_t* const kColors[] = { L"By speed", L"By height", L"Cycling hue" };
 
 void Mirror(HWND dlg) {

@@ -4,7 +4,7 @@
 #include <deque>
 #include <vector>
 
-// Béziers (Windows 2000/XP): a closed loop of cubic Bézier segments whose control
+// Beziers (Windows 2000/XP): a closed loop of cubic Bezier segments whose control
 // points bounce around the screen, leaving a colour-cycling trail.
 struct BeziersSettings {
     int curves = 4;   // 1..10 segments in the loop

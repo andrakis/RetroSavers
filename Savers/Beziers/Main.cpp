@@ -1,4 +1,4 @@
-// scrnsave.lib entry points for Béziers.
+// scrnsave.lib entry points for Beziers.
 #include <windows.h>
 #include <scrnsave.h>
 #include "Host/Host.h"

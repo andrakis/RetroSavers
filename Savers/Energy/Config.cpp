@@ -13,7 +13,7 @@ void Mirror(HWND dlg) {
     dlg::SetText(dlg, IDC_STREAMERS_LABEL, std::to_wstring(20 + 10 * dlg::GetTrackbar(dlg, IDC_STREAMERS)));
     dlg::MirrorTrackbar(dlg, IDC_AMPLITUDE, IDC_AMPLITUDE_LABEL);
     dlg::MirrorTrackbar(dlg, IDC_SPEED, IDC_SPEED_LABEL);
-    dlg::SetText(dlg, IDC_TINT_LABEL, std::to_wstring(dlg::GetTrackbar(dlg, IDC_TINT)) + L"°");
+    dlg::SetText(dlg, IDC_TINT_LABEL, std::to_wstring(dlg::GetTrackbar(dlg, IDC_TINT)) + L"\x00b0");
 }
 
 void Apply(HWND dlg, const EnergySettings& s) {

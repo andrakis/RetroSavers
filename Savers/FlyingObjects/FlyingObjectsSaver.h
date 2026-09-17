@@ -7,8 +7,8 @@
 #include <string>
 #include <vector>
 
-// 3D Flying Objects (Windows NT / 95 Plus!): one deforming object tumbling through space —
-// ribbon, two ribbons, twist, splash, explode, textured flag or logo — rebuilt every frame on
+// 3D Flying Objects (Windows NT / 95 Plus!): one deforming object tumbling through space -
+// ribbon, two ribbons, twist, splash, explode, textured flag or logo - rebuilt every frame on
 // a dynamic mesh.
 struct FlyingObjectsSettings {
     enum Style { Ribbon = 0, TwoRibbons = 1, Twist = 2, Splash = 3, Explode = 4, Flag = 5, Logo = 6, CycleStyles = 7 };
