@@ -114,7 +114,7 @@ Each entry: what it renders · algorithm · Core reuse · settings. Effort S/M/L
   `t ∈ [-1,1.5]`, `t>1` adds spikes `nrm1·(t-1)·cos(πu)cos(πv)`; outputs `PhongPSIn` so `Phong_ps`
   is reused via **C6**. Tumbles and bounces inside the frustum; per-face colours or checker.
   Settings: Complexity, Shape (Cube/Sphere/Star/Cycle), Colour mode, Speed, Spin, Bounce, Size.
-- [ ] **Plasma** (S) — demoscene sum-of-sines with palette cycling; single fullscreen PS at half
+- [x] **Plasma** (S) — demoscene sum-of-sines with palette cycling; single fullscreen PS at half
   res (Aurora structure). Settings: Speed, Scale, Palette, Resolution.
 - [ ] **Life** (S/M) — Conway's Life as GPU ping-pong on two `R8G8B8A8` render textures
   (`{alive, age}`), `PointClamp`/`PointWrap` for toroidal, palette by age, fixed tick (Beziers

@@ -23,6 +23,7 @@ C++20, Direct3D 11, no third-party code — only the Windows SDK (`scrnsave.lib`
 | `Photos.scr` | Photos slideshow | Any folder (recursive, shuffled), WIC decode on a worker thread, crossfade / cut / through black, fit or fill, slow pan and zoom, captions |
 | `Flurry.scr` | Flurry (macOS) | Wandering glowing streams shedding particles through video feedback; Classic / RGB / Fire / Water / Psychedelic / Binary |
 | `FlowerBox.scr` | 3D FlowerBox (95 Plus! / NT / XP) | Subdivided cube breathing between pinched cube, sphere and six-lobed flower; per-face colours, checker, cycling hues |
+| `Plasma.scr` | Plasma (demoscene) | Sum-of-sines plasma through cycling cosine palettes; rainbow / fire / ocean / neon / greyscale |
 
 ## Building
 

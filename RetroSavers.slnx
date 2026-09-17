@@ -21,6 +21,7 @@
     <Project Path="Savers/Photos/Photos.vcxproj" />
     <Project Path="Savers/Flurry/Flurry.vcxproj" />
     <Project Path="Savers/FlowerBox/FlowerBox.vcxproj" />
+    <Project Path="Savers/Plasma/Plasma.vcxproj" />
   </Folder>
   <Folder Name="/Tools/">
     <Project Path="tools/PreviewHost/PreviewHost.vcxproj" />
