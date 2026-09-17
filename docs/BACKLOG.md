@@ -66,7 +66,7 @@ Each entry: what it renders · algorithm · Core reuse · settings. Effort S/M/L
   life) / crackle. Gravity, drag, life. **C1** + `SoftDot` + `Additive()` into **C3**, half-res
   Gaussian bloom composite (Aurora pass structure). Colour via `HsvToRgb`.
   Settings: Launch rate, Gravity, Trail persistence, Bloom, Burst size, Finale every N s.
-- [ ] **BoingBall** (M) — *Amiga Boing Ball (1984).* Red/white checkered sphere, axis tilted ~17°,
+- [x] **BoingBall** (M) — *Amiga Boing Ball (1984).* Red/white checkered sphere, axis tilted ~17°,
   spinning, parabolic bounce with wall reflection, in a purple wire room. `Primitives::Sphere` +
   `Checker(256,128,16,8,red,white)`, `Forward` with high ambient / low spec for the flat look.
   Room = back wall + floor grid as perspective-projected `LineRenderer2D` lines. Shadow = flattened
