@@ -24,6 +24,7 @@ C++20, Direct3D 11, no third-party code — only the Windows SDK (`scrnsave.lib`
 | `Flurry.scr` | Flurry (macOS) | Wandering glowing streams shedding particles through video feedback; Classic / RGB / Fire / Water / Psychedelic / Binary |
 | `FlowerBox.scr` | 3D FlowerBox (95 Plus! / NT / XP) | Subdivided cube breathing between pinched cube, sphere and six-lobed flower; per-face colours, checker, cycling hues |
 | `Plasma.scr` | Plasma (demoscene) | Sum-of-sines plasma through cycling cosine palettes; rainbow / fire / ocean / neon / greyscale |
+| `Life.scr` | Conway's Game of Life | GPU ping-pong at a fixed tick, cells coloured by age, toroidal or bounded, reseeds when the world goes still |
 
 ## Building
 

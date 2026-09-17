@@ -43,6 +43,32 @@ void RenderTexture::Bind(ID3D11DeviceContext* ctx, bool setViewport) const {
     }
 }
 
+void RenderTexture::Upload(ID3D11DeviceContext* ctx, const Image& image) const {
+    if (!Valid() || image.width != m_width || image.height != m_height) return;
+    ctx->UpdateSubresource(m_texture.Get(), 0, nullptr, image.pixels.data(), image.width * 4, 0);
+}
+
+Image RenderTexture::Readback(Device& device) const {
+    Image img(m_width, m_height, 0);
+    if (!Valid()) return img;
+    D3D11_TEXTURE2D_DESC desc{};
+    m_texture->GetDesc(&desc);
+    desc.Usage = D3D11_USAGE_STAGING;
+    desc.BindFlags = 0;
+    desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+    desc.MiscFlags = 0;
+    ComPtr<ID3D11Texture2D> staging;
+    if (FAILED(device.Get()->CreateTexture2D(&desc, nullptr, &staging))) return img;
+    device.Ctx()->CopyResource(staging.Get(), m_texture.Get());
+    D3D11_MAPPED_SUBRESOURCE mapped{};
+    if (SUCCEEDED(device.Ctx()->Map(staging.Get(), 0, D3D11_MAP_READ, 0, &mapped))) {
+        for (int y = 0; y < m_height; ++y)
+            memcpy(&img.pixels[static_cast<size_t>(y) * m_width], static_cast<const uint8_t*>(mapped.pData) + static_cast<size_t>(y) * mapped.RowPitch, static_cast<size_t>(m_width) * 4);
+        device.Ctx()->Unmap(staging.Get(), 0);
+    }
+    return img;
+}
+
 void RenderTexture::Clear(ID3D11DeviceContext* ctx, const DirectX::XMFLOAT4& color) const {
     ctx->ClearRenderTargetView(m_rtv.Get(), &color.x);
 }

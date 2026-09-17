@@ -116,7 +116,7 @@ Each entry: what it renders · algorithm · Core reuse · settings. Effort S/M/L
   Settings: Complexity, Shape (Cube/Sphere/Star/Cycle), Colour mode, Speed, Spin, Bounce, Size.
 - [x] **Plasma** (S) — demoscene sum-of-sines with palette cycling; single fullscreen PS at half
   res (Aurora structure). Settings: Speed, Scale, Palette, Resolution.
-- [ ] **Life** (S/M) — Conway's Life as GPU ping-pong on two `R8G8B8A8` render textures
+- [x] **Life** (S/M) — Conway's Life as GPU ping-pong on two `R8G8B8A8` render textures
   (`{alive, age}`), `PointClamp`/`PointWrap` for toroidal, palette by age, fixed tick (Beziers
   accumulator), reseed on stagnation via a downsampled readback.
   Settings: Cell size, Tick rate, Density, Palette, Wrap, Reseed.

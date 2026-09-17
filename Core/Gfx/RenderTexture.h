@@ -1,5 +1,6 @@
 #pragma once
 #include "Device.h"
+#include "Texture.h"
 #include <DirectXMath.h>
 
 namespace rs {
@@ -12,6 +13,10 @@ public:
     void Bind(ID3D11DeviceContext* ctx, bool setViewport = true) const;
     void Clear(ID3D11DeviceContext* ctx, const DirectX::XMFLOAT4& color) const;
     void BindPS(ID3D11DeviceContext* ctx, UINT slot) const { ID3D11ShaderResourceView* s = m_srv.Get(); ctx->PSSetShaderResources(slot, 1, &s); }
+    // CPU access for simulation targets (8-bit RGBA formats only): upload replaces the whole
+    // texture from an Image of the same size; Readback copies through a staging texture.
+    void Upload(ID3D11DeviceContext* ctx, const Image& image) const;
+    Image Readback(Device& device) const;
 
     ID3D11RenderTargetView* RTV() const { return m_rtv.Get(); }
     ID3D11ShaderResourceView* SRV() const { return m_srv.Get(); }
