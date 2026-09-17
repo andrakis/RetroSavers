@@ -23,6 +23,7 @@
     <Project Path="Savers/FlowerBox/FlowerBox.vcxproj" />
     <Project Path="Savers/Plasma/Plasma.vcxproj" />
     <Project Path="Savers/Life/Life.vcxproj" />
+    <Project Path="Savers/Attractors/Attractors.vcxproj" />
   </Folder>
   <Folder Name="/Tools/">
     <Project Path="tools/PreviewHost/PreviewHost.vcxproj" />

@@ -120,7 +120,7 @@ Each entry: what it renders · algorithm · Core reuse · settings. Effort S/M/L
   (`{alive, age}`), `PointClamp`/`PointWrap` for toroidal, palette by age, fixed tick (Beziers
   accumulator), reseed on stagnation via a downsampled readback.
   Settings: Cell size, Tick rate, Density, Palette, Wrap, Reseed.
-- [ ] **Attractors** (M) — Lorenz / Rössler / Aizawa / Thomas / Halvorsen, RK4 on 10–30k
+- [x] **Attractors** (M) — Lorenz / Rössler / Aizawa / Thomas / Halvorsen, RK4 on 10–30k
   particles, CPU-projected through `Camera::ViewProj()` into **C1** + `SoftDot` + `Additive` +
   **C3**; orbiting camera; colour by speed.
   Settings: Attractor (+Auto-cycle), Particles, Trail, Speed, Colour mode.
