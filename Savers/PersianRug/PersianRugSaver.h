@@ -1,5 +1,6 @@
 #pragma once
 #include "Saver.h"
+#include "Gfx/ConstantBuffer.h"
 #include "Gfx/SpriteBatch2D.h"
 #include "Gfx/Texture.h"
 #include <vector>
@@ -18,6 +19,7 @@ struct PersianRugSettings {
     int palette = Persian;
     int layout = Square;
     bool cycle = true;        // rotate the palette once the rug is complete
+    bool dots = true;         // plot cells as spaced dots (the Windows 3.x look)
     int hold = 12;            // 2..60 seconds to show a finished rug
 
     static PersianRugSettings Load(const rs::Settings& s);
@@ -58,6 +60,10 @@ private:
     rs::Image m_image;
     bool m_dirty = true;
 
+    struct DotsCB { DirectX::XMFLOAT4 params; };
+
     rs::SpriteBatch2D m_sprites;
     rs::Texture m_texture;
+    rs::ComPtr<ID3D11PixelShader> m_dotsPs;
+    rs::ConstantBuffer<DotsCB> m_dotsCb;
 };

@@ -34,6 +34,7 @@ BEGIN
     LTEXT           "&Layout:", -1, 12, 130, 50, 10
     COMBOBOX        IDC_LAYOUT, 64, 128, 90, 60, CBS_DROPDOWNLIST | WS_TABSTOP
     AUTOCHECKBOX    "C&ycle colours", IDC_CYCLE, 170, 110, 80, 10
+    AUTOCHECKBOX    "Draw as d&ots", IDC_DOTS, 170, 130, 80, 10
 
     PUSHBUTTON      "&Defaults", IDC_DEFAULTS, 12, 164, 50, 14
     DEFPUSHBUTTON   "OK", IDOK, 146, 164, 50, 14

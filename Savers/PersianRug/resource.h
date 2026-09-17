@@ -12,3 +12,4 @@
 #define IDC_DEFAULTS       1010
 #define IDC_LAYOUT         1011
 #define IDC_CYCLE          1012
+#define IDC_DOTS           1013

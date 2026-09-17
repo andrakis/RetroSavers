@@ -29,6 +29,7 @@ void Apply(HWND dlg, const PersianRugSettings& s) {
     dlg::FillCombo(dlg, IDC_PALETTE, kPalettes, 5, s.palette);
     dlg::FillCombo(dlg, IDC_LAYOUT, kLayouts, 3, s.layout);
     dlg::SetCheck(dlg, IDC_CYCLE, s.cycle);
+    dlg::SetCheck(dlg, IDC_DOTS, s.dots);
     Mirror(dlg);
 }
 
@@ -41,6 +42,7 @@ PersianRugSettings Collect(HWND dlg) {
     s.palette = dlg::GetComboIndex(dlg, IDC_PALETTE);
     s.layout = dlg::GetComboIndex(dlg, IDC_LAYOUT);
     s.cycle = dlg::GetCheck(dlg, IDC_CYCLE);
+    s.dots = dlg::GetCheck(dlg, IDC_DOTS);
     return s;
 }
 

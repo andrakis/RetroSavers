@@ -3,6 +3,7 @@
 #include "Gfx/SwapChain.h"
 #include "Util/Color.h"
 #include "Util/MathUtil.h"
+#include "Shaders/RugDots_ps.h"
 #include <algorithm>
 #include <cmath>
 
@@ -19,6 +20,7 @@ PersianRugSettings PersianRugSettings::Load(const Settings& s) {
     v.palette = Clamp(s.GetInt(L"Palette", v.palette), 0, 4);
     v.layout = Clamp(s.GetInt(L"Layout", v.layout), 0, 2);
     v.cycle = s.GetBool(L"Cycle", v.cycle);
+    v.dots = s.GetBool(L"Dots", v.dots);
     v.hold = Clamp(s.GetInt(L"Hold", v.hold), 2, 60);
     return v;
 }
@@ -30,6 +32,7 @@ void PersianRugSettings::Save(Settings& s) const {
     s.SetInt(L"Palette", palette);
     s.SetInt(L"Layout", layout);
     s.SetBool(L"Cycle", cycle);
+    s.SetBool(L"Dots", dots);
     s.SetInt(L"Hold", hold);
 }
 
@@ -39,6 +42,8 @@ void PersianRugSaver::Initialize(Device& device, const SaverContext& ctx) {
     m_ctx = ctx;
     m_settings = PersianRugSettings::Load(*ctx.settings);
     m_sprites.Create(device);
+    ThrowIfFailed(device.Get()->CreatePixelShader(g_RugDots_ps, sizeof(g_RugDots_ps), nullptr, &m_dotsPs), "CreatePixelShader(RugDots)");
+    m_dotsCb.Create(device);
     m_n = (1 << m_settings.detail) + 1;
     m_cells.assign(static_cast<size_t>(m_n) * m_n, kUnwoven);
     m_image = Image(m_n, m_n, 0xFF000000u);
@@ -164,25 +169,31 @@ void PersianRugSaver::Render(Device& device, SwapChain&) {
     }
     const States& states = m_sprites.GetStates();
     const float w = static_cast<float>(m_ctx.width), h = static_cast<float>(m_ctx.height);
+    const float side = std::min(w, h);
     m_sprites.Begin(m_ctx.width, m_ctx.height);
     ID3D11SamplerState* sampler = states.PointClamp();
+    ID3D11PixelShader* ps = nullptr;
+    if (m_settings.dots) {
+        // Dot radius shrinks a little as cells get small so the black grid stays visible.
+        float pixelsPerCell = (m_settings.layout == PersianRugSettings::Stretch ? std::max(w, h) : side) / m_n;
+        DotsCB cb{ { static_cast<float>(m_n), pixelsPerCell > 6.0f ? 0.32f : 0.36f, pixelsPerCell, 0 } };
+        m_dotsCb.Update(device.Ctx(), cb);
+        m_dotsCb.BindPS(device.Ctx(), 0);
+        ps = m_dotsPs.Get();
+    }
     switch (m_settings.layout) {
     case PersianRugSettings::Stretch:
         m_sprites.Push(w * 0.5f, h * 0.5f, w, h, { 1, 1, 1, 1 });
         break;
-    case PersianRugSettings::Tile: {
-        float s = std::min(w, h);
-        m_sprites.Push(w * 0.5f, h * 0.5f, w, h, { 1, 1, 1, 1 }, { 0, 0, w / s, h / s });
+    case PersianRugSettings::Tile:
+        m_sprites.Push(w * 0.5f, h * 0.5f, w, h, { 1, 1, 1, 1 }, { 0, 0, w / side, h / side });
         sampler = states.PointWrap();
         break;
-    }
-    default: {
-        float s = std::min(w, h);
-        m_sprites.Push(std::floor(w * 0.5f), std::floor(h * 0.5f), s, s, { 1, 1, 1, 1 });
+    default:
+        m_sprites.Push(std::floor(w * 0.5f), std::floor(h * 0.5f), side, side, { 1, 1, 1, 1 });
         break;
     }
-    }
-    m_sprites.End(device, &m_texture, states.Opaque(), nullptr, sampler);
+    m_sprites.End(device, &m_texture, states.Opaque(), ps, sampler);
 }
 
 void PersianRugSaver::Resize(int width, int height) {
