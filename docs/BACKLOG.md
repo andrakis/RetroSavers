@@ -105,7 +105,7 @@ Each entry: what it renders · algorithm · Core reuse · settings. Effort S/M/L
   `Photos_ps`: two textures + blend + per-image affine (fit/fill, slow Ken Burns), letterbox.
   Empty folder → `TextImage` notice. Per-monitor independent sequences.
   Settings: Folder (`PickFolder`), Interval, Transition, Fit/Fill, Shuffle, Subfolders, Show file name.
-- [ ] **Flurry** (M/L) — *macOS Flurry.* Streams on smooth random paths spawn 40–80 short-lived
+- [x] **Flurry** (M/L) — *macOS Flurry.* Streams on smooth random paths spawn 40–80 short-lived
   particles/frame with tangential velocity; `SoftDot` + `Additive()`; **C3 feedback mode**
   (`zoom 1.01`, `fade 0.93`, 4-tap blur) gives the glowing trails; optional bloom.
   Settings: Streams, Preset (Classic / RGB / Fire / Water / Psychedelic / Binary), Speed, Brightness, Trail.

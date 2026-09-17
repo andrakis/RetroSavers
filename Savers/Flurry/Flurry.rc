@@ -1,0 +1,66 @@
+#include <windows.h>
+#include <commctrl.h>
+#include <scrnsave.h>
+#include "resource.h"
+
+// IDS_DESCRIPTION (1): the name shown in the Screen Saver Settings dropdown.
+STRINGTABLE
+BEGIN
+    IDS_DESCRIPTION "Flurry"
+END
+
+ID_APP ICON "..\\..\\assets\\RetroSavers.ico"
+
+DLG_SCRNSAVECONFIGURE DIALOGEX 0, 0, 260, 166
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Flurry Settings"
+FONT 9, "Segoe UI", 400, 0, 0x1
+BEGIN
+    LTEXT           "&Preset:", -1, 12, 12, 50, 10
+    COMBOBOX        IDC_PRESET, 64, 10, 100, 80, CBS_DROPDOWNLIST | WS_TABSTOP
+    AUTOCHECKBOX    "&Bloom", IDC_BLOOM, 176, 12, 60, 10
+
+    LTEXT           "&Streams:", -1, 12, 36, 50, 10
+    CONTROL         "", IDC_STREAMS, TRACKBAR_CLASS, TBS_AUTOTICKS | WS_TABSTOP, 64, 32, 150, 18
+    LTEXT           "5", IDC_STREAMS_LABEL, 220, 36, 30, 10
+    LTEXT           "Sp&eed:", -1, 12, 60, 50, 10
+    CONTROL         "", IDC_SPEED, TRACKBAR_CLASS, TBS_AUTOTICKS | WS_TABSTOP, 64, 56, 150, 18
+    LTEXT           "5", IDC_SPEED_LABEL, 220, 60, 30, 10
+    LTEXT           "B&rightness:", -1, 12, 84, 50, 10
+    CONTROL         "", IDC_BRIGHTNESS, TRACKBAR_CLASS, TBS_AUTOTICKS | WS_TABSTOP, 64, 80, 150, 18
+    LTEXT           "5", IDC_BRIGHTNESS_LABEL, 220, 84, 30, 10
+    LTEXT           "&Trail:", -1, 12, 108, 50, 10
+    CONTROL         "", IDC_TRAIL, TRACKBAR_CLASS, TBS_AUTOTICKS | WS_TABSTOP, 64, 104, 150, 18
+    LTEXT           "5", IDC_TRAIL_LABEL, 220, 108, 30, 10
+
+    PUSHBUTTON      "&Defaults", IDC_DEFAULTS, 12, 140, 50, 14
+    DEFPUSHBUTTON   "OK", IDOK, 146, 140, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 200, 140, 50, 14
+END
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "FileDescription", "Flurry screen saver (RetroSavers)"
+            VALUE "FileVersion", "1.0.0.0"
+            VALUE "InternalName", "Flurry.scr"
+            VALUE "OriginalFilename", "Flurry.scr"
+            VALUE "ProductName", "RetroSavers"
+            VALUE "ProductVersion", "1.0.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

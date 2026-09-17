@@ -21,6 +21,7 @@ C++20, Direct3D 11, no third-party code — only the Windows SDK (`scrnsave.lib`
 | `Text3D.scr` | 3D Text (95 Plus! / NT / XP) | Extruded text or clock in any font (DirectWrite outlines), spin / see-saw / wobble / tumble, solid / marble / checker / image |
 | `BubblesVista.scr` | Bubbles (Vista / 7) | Iridescent soap bubbles with elastic collisions floating over (and refracting) the desktop |
 | `Photos.scr` | Photos slideshow | Any folder (recursive, shuffled), WIC decode on a worker thread, crossfade / cut / through black, fit or fill, slow pan and zoom, captions |
+| `Flurry.scr` | Flurry (macOS) | Wandering glowing streams shedding particles through video feedback; Classic / RGB / Fire / Water / Psychedelic / Binary |
 
 ## Building
 
