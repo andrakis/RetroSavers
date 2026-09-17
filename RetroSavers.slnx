@@ -20,6 +20,7 @@
     <Project Path="Savers/BubblesVista/BubblesVista.vcxproj" />
     <Project Path="Savers/Photos/Photos.vcxproj" />
     <Project Path="Savers/Flurry/Flurry.vcxproj" />
+    <Project Path="Savers/FlowerBox/FlowerBox.vcxproj" />
   </Folder>
   <Folder Name="/Tools/">
     <Project Path="tools/PreviewHost/PreviewHost.vcxproj" />

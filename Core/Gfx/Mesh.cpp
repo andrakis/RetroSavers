@@ -51,10 +51,21 @@ void MeshData::FixWinding() {
     }
 }
 
+void Mesh::CreateIndexBuffer(Device& device, const MeshData& data) {
+    D3D11_BUFFER_DESC id{};
+    id.ByteWidth = static_cast<UINT>(data.indices.size() * sizeof(uint32_t));
+    id.Usage = D3D11_USAGE_IMMUTABLE;
+    id.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    D3D11_SUBRESOURCE_DATA is{ data.indices.data(), 0, 0 };
+    ThrowIfFailed(device.Get()->CreateBuffer(&id, &is, &m_ib), "CreateBuffer(index)");
+    m_indexCount = static_cast<UINT>(data.indices.size());
+}
+
 void Mesh::Create(Device& device, const MeshData& data) {
     m_vb.Reset();
     m_ib.Reset();
     m_indexCount = 0;
+    m_vertexCapacity = 0;
     if (data.vertices.empty() || data.indices.empty()) return;
 
     D3D11_BUFFER_DESC vd{};
@@ -63,14 +74,37 @@ void Mesh::Create(Device& device, const MeshData& data) {
     vd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     D3D11_SUBRESOURCE_DATA vs{ data.vertices.data(), 0, 0 };
     ThrowIfFailed(device.Get()->CreateBuffer(&vd, &vs, &m_vb), "CreateBuffer(vertex)");
+    CreateIndexBuffer(device, data);
+}
 
-    D3D11_BUFFER_DESC id{};
-    id.ByteWidth = static_cast<UINT>(data.indices.size() * sizeof(uint32_t));
-    id.Usage = D3D11_USAGE_IMMUTABLE;
-    id.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    D3D11_SUBRESOURCE_DATA is{ data.indices.data(), 0, 0 };
-    ThrowIfFailed(device.Get()->CreateBuffer(&id, &is, &m_ib), "CreateBuffer(index)");
-    m_indexCount = static_cast<UINT>(data.indices.size());
+void Mesh::CreateDynamic(Device& device, const MeshData& data) {
+    m_vb.Reset();
+    m_ib.Reset();
+    m_indexCount = 0;
+    m_vertexCapacity = 0;
+    if (data.vertices.empty() || data.indices.empty()) return;
+
+    D3D11_BUFFER_DESC vd{};
+    vd.ByteWidth = static_cast<UINT>(data.vertices.size() * sizeof(VertexPNT));
+    vd.Usage = D3D11_USAGE_DYNAMIC;
+    vd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    D3D11_SUBRESOURCE_DATA vs{ data.vertices.data(), 0, 0 };
+    ThrowIfFailed(device.Get()->CreateBuffer(&vd, &vs, &m_vb), "CreateBuffer(dynamic vertex)");
+    m_vertexCapacity = static_cast<UINT>(data.vertices.size());
+    CreateIndexBuffer(device, data);
+}
+
+void Mesh::Update(Device& device, const MeshData& data) {
+    if (!m_vertexCapacity || data.vertices.size() > m_vertexCapacity) {
+        CreateDynamic(device, data);
+        return;
+    }
+    D3D11_MAPPED_SUBRESOURCE mapped{};
+    if (SUCCEEDED(device.Ctx()->Map(m_vb.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped))) {
+        memcpy(mapped.pData, data.vertices.data(), data.vertices.size() * sizeof(VertexPNT));
+        device.Ctx()->Unmap(m_vb.Get(), 0);
+    }
 }
 
 void Mesh::Bind(ID3D11DeviceContext* ctx) const {

@@ -30,7 +30,7 @@ Built once; listed in the order Tier 1 needs them. Tier 1 needs C1, C2, C3, C9, 
 | C10 | `TextureFactory`: `Emblem` (generic wavy four-pane flag), `SoftDot` (radial alpha), `Checker(w,h,cellsX,cellsY,a,b)`, `DiscLogo`; later `Toaster`/`Toast` sprites and `Primitives::Gear` | | Flying Windows, DVD, Boing, Fireworks/Flurry, Toasters, glxgears | [x] (Toaster/Toast/Gear pending) |
 | C11 | `States`: `PremultipliedAlpha()`, `PointWrap()` | Trivial. | AA text, Bubbles, Life | [x] |
 | C4 | `LineRenderer2D`: `Triangle`/`Quad`/`Strip` as a second `TRIANGLELIST` batch | | Ribbons, Energy, Starry Night, Boing grid/shadow | [ ] |
-| C5 | `Mesh::CreateDynamic` + `Mesh::Update(MeshData)` | `DYNAMIC`, `WRITE_DISCARD`. | Flying Objects, CPU FlowerBox | [ ] |
+| C5 | `Mesh::CreateDynamic` + `Mesh::Update(MeshData)` | `DYNAMIC`, `WRITE_DISCARD`. | Flying Objects, CPU FlowerBox | [x] |
 | C6 | `Forward`: public `BindMaterial(ctx, material, world)` + `PixelShader()` getter | A saver can bind its own VS but reuse `PerFrame`/`PerObject` and `Phong_ps`. | FlowerBox morph VS | [ ] |
 | C8 | `Core\Gfx\FontMesh` (DirectWrite outline → D2D `Tessellate` + `Simplify` → extruded `MeshData`) | See 3D Text. | 3D Text | [x] |
 
@@ -109,7 +109,7 @@ Each entry: what it renders · algorithm · Core reuse · settings. Effort S/M/L
   particles/frame with tangential velocity; `SoftDot` + `Additive()`; **C3 feedback mode**
   (`zoom 1.01`, `fade 0.93`, 4-tap blur) gives the glowing trails; optional bloom.
   Settings: Streams, Preset (Classic / RGB / Fire / Water / Psychedelic / Binary), Speed, Brightness, Trail.
-- [ ] **FlowerBox** (M) — *3D FlowerBox (95 Plus! / NT / XP).* Subdivided cube with custom vertex
+- [x] **FlowerBox** (M) — built on the CPU path (C5 dynamic meshes, parametric normals) instead of the VS morph; C6 not needed. — *3D FlowerBox (95 Plus! / NT / XP).* Subdivided cube with custom vertex
   `{pos0,nrm0,pos1,nrm1,uv}` (cube point ↔ `normalize(pos0)`); `FlowerBox_vs.hlsl` blends by
   `t ∈ [-1,1.5]`, `t>1` adds spikes `nrm1·(t-1)·cos(πu)cos(πv)`; outputs `PhongPSIn` so `Phong_ps`
   is reused via **C6**. Tumbles and bounces inside the frustum; per-face colours or checker.
