@@ -26,6 +26,7 @@ C++20, Direct3D 11, no third-party code — only the Windows SDK (`scrnsave.lib`
 | `Plasma.scr` | Plasma (demoscene) | Sum-of-sines plasma through cycling cosine palettes; rainbow / fire / ocean / neon / greyscale |
 | `Life.scr` | Conway's Game of Life | GPU ping-pong at a fixed tick, cells coloured by age, toroidal or bounded, reseeds when the world goes still |
 | `Attractors.scr` | Strange attractors | Lorenz, Rössler, Aizawa, Thomas, Halvorsen: thousands of RK4 particles, orbiting camera, colour by speed / height / hue |
+| `Gears.scr` | glxgears | The three meshing gears from gears.c, drifting view, wireframe, frame counter |
 
 ## Building
 

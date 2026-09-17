@@ -161,4 +161,53 @@ MeshData Grid(float w, float d, int divisionsX, int divisionsZ, float uvRepeat) 
     return m;
 }
 
+MeshData Gear(float innerRadius, float outerRadius, float width, int teeth, float toothDepth) {
+    MeshData m;
+    const float r0 = innerRadius, r1 = outerRadius - toothDepth * 0.5f, r2 = outerRadius + toothDepth * 0.5f;
+    const float da = kTwoPi / teeth / 4.0f, hw = width * 0.5f;
+    // Every quad gets its own four vertices so faces stay flat, as in gears.c.
+    auto quad = [&](const XMFLOAT3& a, const XMFLOAT3& b, const XMFLOAT3& c, const XMFLOAT3& d, const XMFLOAT3& n) {
+        uint32_t base = static_cast<uint32_t>(m.vertices.size());
+        m.vertices.push_back({ a, n, { 0, 0 } });
+        m.vertices.push_back({ b, n, { 1, 0 } });
+        m.vertices.push_back({ c, n, { 1, 1 } });
+        m.vertices.push_back({ d, n, { 0, 1 } });
+        AddQuad(m, base, base + 1, base + 2, base + 3);
+    };
+    auto P = [](float r, float angle, float z) { return XMFLOAT3{ r * std::cos(angle), r * std::sin(angle), z }; };
+
+    for (int i = 0; i < teeth; ++i) {
+        float a = i * kTwoPi / teeth;
+        for (float z : { hw, -hw }) {
+            XMFLOAT3 n{ 0, 0, z > 0 ? 1.0f : -1.0f };
+            // Face: the ring between the bore and the tooth root, one wedge per tooth (the
+            // second quad repeats a corner: it is the sliver triangle under the gap).
+            quad(P(r0, a, z), P(r1, a, z), P(r1, a + 3 * da, z), P(r0, a + 4 * da, z), n);
+            quad(P(r0, a + 4 * da, z), P(r1, a + 3 * da, z), P(r1, a + 4 * da, z), P(r0, a + 4 * da, z), n);
+            // Tooth cap on this face.
+            quad(P(r1, a, z), P(r2, a + da, z), P(r2, a + 2 * da, z), P(r1, a + 3 * da, z), n);
+        }
+        // Outward faces of the tooth: root -> flank -> tip -> flank -> root, then the gap.
+        const float angles[5] = { a, a + da, a + 2 * da, a + 3 * da, a + 4 * da };
+        const float radii[5] = { r1, r2, r2, r1, r1 };
+        for (int k = 0; k < 4; ++k) {
+            XMFLOAT3 p0 = P(radii[k], angles[k], hw), p1 = P(radii[k + 1], angles[k + 1], hw);
+            float dx = p1.x - p0.x, dy = p1.y - p0.y;
+            float len = std::sqrt(dx * dx + dy * dy);
+            XMFLOAT3 n{ dy / len, -dx / len, 0 };
+            quad(p0, P(radii[k], angles[k], -hw), P(radii[k + 1], angles[k + 1], -hw), p1, n);
+        }
+        // Bore: inside cylinder, normals pointing in.
+        XMFLOAT3 n0{ -std::cos(a), -std::sin(a), 0 }, n1{ -std::cos(a + 4 * da), -std::sin(a + 4 * da), 0 };
+        uint32_t base = static_cast<uint32_t>(m.vertices.size());
+        m.vertices.push_back({ P(r0, a, -hw), n0, { 0, 0 } });
+        m.vertices.push_back({ P(r0, a, hw), n0, { 0, 1 } });
+        m.vertices.push_back({ P(r0, a + 4 * da, hw), n1, { 1, 1 } });
+        m.vertices.push_back({ P(r0, a + 4 * da, -hw), n1, { 1, 0 } });
+        AddQuad(m, base, base + 1, base + 2, base + 3);
+    }
+    FixWinding(m);
+    return m;
+}
+
 } // namespace rs::Primitives

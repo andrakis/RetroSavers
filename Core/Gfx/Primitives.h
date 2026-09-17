@@ -22,4 +22,8 @@ MeshData Quad(float w, float h);
 // Flat grid in the XZ plane facing +Y, centred, with uvRepeat tiling.
 MeshData Grid(float w, float d, int divisionsX, int divisionsZ, float uvRepeat = 1.0f);
 
+// The glxgears gear (a port of gears.c): centred on the origin, axis along Z, `width` thick,
+// with a bore of `innerRadius`, `teeth` teeth of `toothDepth` around `outerRadius`. Flat shaded.
+MeshData Gear(float innerRadius, float outerRadius, float width, int teeth, float toothDepth);
+
 } // namespace rs::Primitives
