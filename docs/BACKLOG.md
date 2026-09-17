@@ -152,6 +152,104 @@ Each entry: what it renders · algorithm · Core reuse · settings. Effort S/M/L
 
 ---
 
+## Tier 4 — Aquarium (planned, not started)
+
+A SereneScreen / After Dark "Fish!" style tank: a dozen procedurally built fish schooling and
+wandering in front of a sandy floor, rocks and swaying plants, with caustics, light shafts and
+bubbles. Everything is generated — no models, no textures on disk. Effort **XL**; plan it as three
+sessions (Core, environment, fish) so each lands a runnable saver.
+
+### Look and feel
+
+- Camera: fixed, slightly below the tank's centre looking straight in (`fovY` ~35°), so the floor
+  is seen from a shallow angle and the back wall fills the frame. Very slow ±3° yaw drift.
+- Water: dark teal-blue gradient back wall (`Fill` + a `Water_ps` that adds slow sine "volume"
+  bands), depth fog in `FrameConstants::fogColor/fogParams` so far fish and the back wall sink
+  into the blue.
+- Caustics: an animated `Caustics_ps` (sum of 3 warped voronoi/sines, tileable) rendered once per
+  frame into a 256² `RenderTexture` and projected top-down onto the floor, rocks and fish
+  (`Phong_ps` gets a second sampler slot for a "light map" that multiplies the diffuse term — see
+  **C13**).
+- Light shafts: 6–10 tall additive quads (`SpriteBatch2D`, `SoftDot` stretched) leaning ~15°,
+  brightness modulated by a slow sine, drawn before the fish with `DepthReadOnly`.
+- Bubbles: sprite streams rising from 2–3 floor vents with a wobble, `SoftDot` ring texture
+  (`TextureFactory::BubbleRing`), pop near the surface. Occasional bubble trail from a fish.
+- Glass: subtle vignette + a faint diagonal reflection band in the final composite PS; optional
+  "tank frame" bars at the edges.
+
+### Environment geometry
+
+- Floor: `Primitives::Grid` with `Fbm` height noise (dunes), sand texture from `TextureFactory::
+  Noise` tinted; caustics projected on top.
+- Rocks: 5–8 `Sphere`s displaced by `Fbm` along their normals (new `Primitives::Rock(seed)`),
+  greys/browns with a darker base; placed by rejection sampling so they never overlap.
+- Plants: kelp/seaweed as `LineRenderer2D`-free 3D strips — chains of 8–14 quads on a **C5**
+  dynamic mesh, each segment rotated by `sin(t·f + i·k)` accumulating up the stalk (the sway),
+  green/olive with a lighter tip; 2-sided (`CullNone`). Grass tufts = thin triangles in bunches.
+- Optional treasure chest / castle: three `Box`es and a `Cylinder` — a nod to the plastic
+  ornaments in every 90s tank.
+
+### Fish
+
+- **Body**: a parametric mesh (`FishMesh::Build(species)`): elliptical cross-sections along the
+  body axis `x ∈ [0,1]` with height/width profiles `h(x)`, `w(x)` from the species table, a flat
+  tail fin (fan of quads, thin), dorsal/anal/pectoral fins as two-sided quads, an eye as a small
+  dark sphere. ~600 vertices. Built once per species, instanced per fish.
+- **Swim**: vertex animation in a custom `Fish_vs.hlsl` (needs **C6**): lateral displacement
+  `z += A(x)·sin(k·x − ω·t + phase)` with `A` growing toward the tail, plus a tail-fin flick; `t`,
+  phase and speed factor come from per-instance data (extend `InstanceData` with a `float4 anim`
+  — **C14**). The instanced path draws a whole species in one call.
+- **Patterns**: `Fish_ps.hlsl` colours by `uv` with per-species parameters (base + accent colour,
+  stripe frequency / spot density / gradient mode, belly lightening by `nrm.y`, iridescent sheen
+  `pow(1 − n·v, 3)`), multiplied by the projected caustics. No texture files.
+- **Species table** (8 to start): clownfish (orange, 3 white bands), blue tang (blue, black
+  outline, yellow tail), yellow tang (tall, flat), angelfish (very tall, striped, long fins),
+  neon tetra (tiny, blue/red stripe, schools of 10–20), guppy (small, gradient tail), goldfish
+  (round, orange, flowing tail), and a slow bottom-dwelling catfish/pleco.
+- **Behaviour** (per fish, per frame): steering forces — wander (fbm-driven heading noise),
+  tank-bounds avoidance (soft walls, strong near the glass), obstacle avoidance (rocks as spheres),
+  schooling for schooling species (Reynolds: separation / alignment / cohesion within a radius),
+  occasional "dart" impulses and idle hover. Heading turns are rate-limited; body roll/pitch follow
+  the turn; speed sets the swim animation rate. Fish flip direction by turning, never by
+  mirroring. A few fish nibble at plants (pause, small head bobs) — cheap and charming.
+- **Depth sorting**: opaque fish, so only the back-to-front order of the translucent bits (fins,
+  bubbles, shafts) matters; draw shafts → opaque scene → bubbles.
+
+### Settings
+
+Fish count (5–30), Species (checklist of the 8, or "Random mix"), Plants (0–10), Rocks (0–8),
+Bubbles (on/off), Light shafts (on/off), Caustics strength, Water tint (colour), Speed, Show
+ornament, Quality (caustics resolution / fish tessellation).
+
+### Core additions it needs
+
+| # | Addition | What |
+|---|---|---|
+| C6 | `Forward::Draw(ctx, mesh, world, material, ID3D11VertexShader*, ID3D11InputLayout*, ID3D11PixelShader*)` | Custom VS/PS while keeping `PerFrame`/`PerObject` and the white-texture / sampler binding. |
+| C13 | `Phong_ps` light-map slot (`t1`, `gMaterial` flag) | Multiplies diffuse by a projected texture (caustics) using world XZ → uv. |
+| C14 | `InstanceData::anim` + `PhongInstanced_vs` pass-through | Per-instance animation params for the instanced fish path. |
+| C15 | `Primitives::Rock`, `Primitives::Strip` (kelp), `TextureFactory::BubbleRing`, `FishMesh` | Geometry generators. |
+
+### Build order
+
+1. **Session A** — C6/C13/C14, `Water_ps`, `Caustics_ps`, floor + rocks + plants + shafts +
+   bubbles. Ships as `Aquarium.scr` with an empty tank (already a pleasant saver).
+2. **Session B** — `FishMesh` + `Fish_vs/ps` + the species table; fish placed and swimming in
+   straight lines; pattern shader verified species by species with PreviewHost screenshots.
+3. **Session C** — behaviours (wander, walls, rocks, schooling, darts, nibbling), depth fog tuning,
+   glass composite, settings dialog, README row.
+
+### Risks / notes
+
+- `Phong_ps` has no alpha test: fins with soft edges need either a `clip()` in `Fish_ps` or
+  hard-edged fin geometry (preferred — the originals were hard-edged too).
+- Sorting 30 fish per frame is trivial; instancing per species is an optimisation, not a need —
+  start with one draw per fish and add C14 only if a 4K profile shows the CPU bound.
+- Keep everything DPI/resolution independent: fish size is in world units, only the caustics
+  render texture scales with Quality.
+
+---
+
 ## Framework facts that shape the designs
 
 - `Core\Saver.h`: one `Saver` per monitor; `ClearColor()` → `nullopt` means the saver owns clearing.
