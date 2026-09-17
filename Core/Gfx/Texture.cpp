@@ -12,6 +12,7 @@ void Texture::FromRgba(Device& device, int width, int height, const uint32_t* rg
     m_srv.Reset();
     m_width = width;
     m_height = height;
+    m_mipmaps = mipmaps;
 
     D3D11_TEXTURE2D_DESC desc{};
     desc.Width = width;
@@ -32,6 +33,16 @@ void Texture::FromRgba(Device& device, int width, int height, const uint32_t* rg
     sv.Texture2D.MipLevels = mipmaps ? static_cast<UINT>(-1) : 1;
     ThrowIfFailed(device.Get()->CreateShaderResourceView(m_texture.Get(), &sv, &m_srv), "CreateShaderResourceView");
     if (mipmaps) device.Ctx()->GenerateMips(m_srv.Get());
+}
+
+void Texture::Update(Device& device, const Image& image) {
+    if (!image.Valid()) throw std::runtime_error("Texture::Update: invalid image");
+    if (!Valid() || image.width != m_width || image.height != m_height) {
+        FromImage(device, image, m_mipmaps);
+        return;
+    }
+    device.Ctx()->UpdateSubresource(m_texture.Get(), 0, nullptr, image.pixels.data(), image.width * 4, 0);
+    if (m_mipmaps) device.Ctx()->GenerateMips(m_srv.Get());
 }
 
 } // namespace rs

@@ -66,6 +66,11 @@ Each entry: what it renders · algorithm · Core reuse · settings. Effort S/M/L
   life) / crackle. Gravity, drag, life. **C1** + `SoftDot` + `Additive()` into **C3**, half-res
   Gaussian bloom composite (Aurora pass structure). Colour via `HsvToRgb`.
   Settings: Launch rate, Gravity, Trail persistence, Bloom, Burst size, Finale every N s.
+- [x] **PersianRug** (S) — *Persian Rug (Win 3.x era).* The "Persian recursion": border in one colour,
+  then each square's midlines take `(corner average + shift) mod N` and the quadrants recurse. Ops are
+  planned up front and replayed progressively into an index image (`Texture::Update` per frame);
+  palette cycling once complete; next rug weaves over the old one.
+  Settings: Detail (2^6..2^9 + 1), Colours, Speed, Hold, Palette, Layout (square / stretch / tile), Cycle.
 - [x] **BoingBall** (M) — *Amiga Boing Ball (1984).* Red/white checkered sphere, axis tilted ~17°,
   spinning, parabolic bounce with wall reflection, in a purple wire room. `Primitives::Sphere` +
   `Checker(256,128,16,8,red,white)`, `Forward` with high ambient / low spec for the flat look.

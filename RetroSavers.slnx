@@ -15,6 +15,7 @@
     <Project Path="Savers/Marquee/Marquee.vcxproj" />
     <Project Path="Savers/Fireworks/Fireworks.vcxproj" />
     <Project Path="Savers/BoingBall/BoingBall.vcxproj" />
+    <Project Path="Savers/PersianRug/PersianRug.vcxproj" />
   </Folder>
   <Folder Name="/Tools/">
     <Project Path="tools/PreviewHost/PreviewHost.vcxproj" />

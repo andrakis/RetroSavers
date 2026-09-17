@@ -22,6 +22,9 @@ class Texture {
 public:
     void FromImage(Device& device, const Image& image, bool mipmaps = true);
     void FromRgba(Device& device, int width, int height, const uint32_t* rgba, bool mipmaps = true);
+    // Re-uploads pixels into the existing texture when the size matches (regenerating mips if
+    // it has them); otherwise recreates it. For images that change every frame.
+    void Update(Device& device, const Image& image);
     void BindPS(ID3D11DeviceContext* ctx, UINT slot) const { ID3D11ShaderResourceView* s = m_srv.Get(); ctx->PSSetShaderResources(slot, 1, &s); }
     ID3D11ShaderResourceView* SRV() const { return m_srv.Get(); }
     bool Valid() const { return m_srv != nullptr; }
@@ -33,6 +36,7 @@ private:
     ComPtr<ID3D11ShaderResourceView> m_srv;
     int m_width = 0;
     int m_height = 0;
+    bool m_mipmaps = false;
 };
 
 } // namespace rs
