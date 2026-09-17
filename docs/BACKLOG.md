@@ -52,7 +52,7 @@ Each entry: what it renders · algorithm · Core reuse · settings. Effort S/M/L
   via `PickImageFile` + **C7**. Velocity components are chosen so corner hits happen at a
   configurable rate (position is evaluated analytically from time, so hits never drift).
   Settings: Image path, Size, Speed, Colour mode, Corner rate, Show corner counter, Background colour.
-- [ ] **FlyingWindows** (S) — *Flying Windows (Win 3.1 / 95).* Generic emblems fly at the viewer
+- [x] **FlyingWindows** (S) — *Flying Windows (Win 3.1 / 95).* Generic emblems fly at the viewer
   from the vanishing point. Starfield's z-model and `dpiScale` projection, **C1** instances with
   the `Emblem` uvRect, size ∝ 1/z, optional slow spin, optional background stars.
   Settings: Density (10–200), Warp speed, Image path, Pane colours ×4, Spin, Stars.

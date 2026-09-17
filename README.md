@@ -13,6 +13,7 @@ C++20, Direct3D 11, no third-party code — only the Windows SDK (`scrnsave.lib`
 | `Maze3D.scr` | 3D Maze (NT 4 / 95 Plus!) | Right-hand-rule walk, smiley, OpenGL logo, rats, the rock that flips the world |
 | `Matrix.scr` | Matrix digital rain | Mirrored half-width katakana, bright heads, fading trails, optional afterglow |
 | `DVDBounce.scr` | Bouncing DVD-style logo | Generic disc logo (or your image) recolours on each bounce and counts corner hits |
+| `FlyingWindows.scr` | Flying Windows (Win 3.1 / 95) | Generic four-pane emblems (recolourable, or your image) stream out of the vanishing point |
 
 ## Building
 
