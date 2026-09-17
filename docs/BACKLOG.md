@@ -46,7 +46,7 @@ Each entry: what it renders · algorithm · Core reuse · settings. Effort S/M/L
   `0-9A-Z`, cell size × `dpiScale`. Per column: head y, speed, trail length, glyph index per cell.
   Draw via **C1** with `AlphaBlend`; trail brightness `(1 - i/len)^1.5`; optional afterglow via **C3**.
   Settings: Speed, Density, Glyph size, Colour, Charset, Bold heads, Afterglow.
-- [ ] **DVDBounce** (S) — *Bouncing DVD-style logo.* One sprite bounces off the edges, recolours
+- [x] **DVDBounce** (S) — *Bouncing DVD-style logo.* One sprite bounces off the edges, recolours
   on each bounce, flashes + increments a counter on corner hits. Default texture is a generic
   procedurally drawn disc logo (`DiscLogo`) drawn white so the sprite colour tints it; user image
   via `PickImageFile` + **C7**. Velocity components are chosen so corner hits happen at a

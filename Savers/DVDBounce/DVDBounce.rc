@@ -1,0 +1,71 @@
+#include <windows.h>
+#include <commctrl.h>
+#include <scrnsave.h>
+#include "resource.h"
+
+// IDS_DESCRIPTION (1): the name shown in the Screen Saver Settings dropdown.
+STRINGTABLE
+BEGIN
+    IDS_DESCRIPTION "Bouncing Logo"
+END
+
+ID_APP ICON "..\\..\\assets\\RetroSavers.ico"
+
+DLG_SCRNSAVECONFIGURE DIALOGEX 0, 0, 270, 196
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Bouncing Logo Settings"
+FONT 9, "Segoe UI", 400, 0, 0x1
+BEGIN
+    LTEXT           "&Image:", -1, 12, 14, 50, 10
+    EDITTEXT        IDC_IMAGE_PATH, 64, 12, 140, 13, ES_AUTOHSCROLL
+    PUSHBUTTON      "...", IDC_IMAGE_BROWSE, 208, 11, 22, 14
+    PUSHBUTTON      "Clear", IDC_IMAGE_CLEAR, 234, 11, 28, 14
+    LTEXT           "(blank = built-in logo)", -1, 64, 28, 140, 10
+
+    LTEXT           "&Size:", -1, 12, 46, 50, 10
+    CONTROL         "", IDC_SIZE_TB, TRACKBAR_CLASS, TBS_AUTOTICKS | WS_TABSTOP, 64, 42, 160, 18
+    LTEXT           "18", IDC_SIZE_LABEL, 230, 46, 30, 10
+    LTEXT           "S&peed:", -1, 12, 70, 50, 10
+    CONTROL         "", IDC_SPEED, TRACKBAR_CLASS, TBS_AUTOTICKS | WS_TABSTOP, 64, 66, 160, 18
+    LTEXT           "5", IDC_SPEED_LABEL, 230, 70, 30, 10
+
+    LTEXT           "&Colours:", -1, 12, 96, 50, 10
+    COMBOBOX        IDC_COLOR_MODE, 64, 94, 100, 60, CBS_DROPDOWNLIST | WS_TABSTOP
+    LTEXT           "Corner &hits:", -1, 12, 116, 50, 10
+    COMBOBOX        IDC_CORNER_RATE, 64, 114, 100, 60, CBS_DROPDOWNLIST | WS_TABSTOP
+    LTEXT           "Background:", -1, 12, 138, 50, 10
+    PUSHBUTTON      "Colour...", IDC_BACKGROUND, 64, 135, 50, 14
+    LTEXT           "", IDC_SWATCH, 120, 135, 24, 14, SS_SUNKEN
+    AUTOCHECKBOX    "Show corner cou&nter", IDC_COUNTER, 172, 116, 90, 10
+
+    PUSHBUTTON      "&Defaults", IDC_DEFAULTS, 12, 170, 50, 14
+    DEFPUSHBUTTON   "OK", IDOK, 156, 170, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 210, 170, 50, 14
+END
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "FileDescription", "Bouncing Logo screen saver (RetroSavers)"
+            VALUE "FileVersion", "1.0.0.0"
+            VALUE "InternalName", "DVDBounce.scr"
+            VALUE "OriginalFilename", "DVDBounce.scr"
+            VALUE "ProductName", "RetroSavers"
+            VALUE "ProductVersion", "1.0.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
