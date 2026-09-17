@@ -20,10 +20,12 @@ public:
     ID3D11BlendState* Opaque() const { return m_opaque.Get(); }
     ID3D11BlendState* AlphaBlend() const { return m_alpha.Get(); }
     ID3D11BlendState* Additive() const { return m_additive.Get(); }
+    ID3D11BlendState* PremultipliedAlpha() const { return m_premultiplied.Get(); }   // src ONE, dst INV_SRC_ALPHA
 
     ID3D11SamplerState* LinearWrap() const { return m_linearWrap.Get(); }
     ID3D11SamplerState* LinearClamp() const { return m_linearClamp.Get(); }
     ID3D11SamplerState* PointClamp() const { return m_pointClamp.Get(); }
+    ID3D11SamplerState* PointWrap() const { return m_pointWrap.Get(); }
     ID3D11SamplerState* AnisoWrap() const { return m_anisoWrap.Get(); }
 
     // Convenience: opaque, depth on, back-face culling.
@@ -34,8 +36,8 @@ public:
 private:
     ComPtr<ID3D11RasterizerState> m_cullBack, m_cullNone, m_wireframe;
     ComPtr<ID3D11DepthStencilState> m_depthDefault, m_depthReadOnly, m_depthDisabled;
-    ComPtr<ID3D11BlendState> m_opaque, m_alpha, m_additive;
-    ComPtr<ID3D11SamplerState> m_linearWrap, m_linearClamp, m_pointClamp, m_anisoWrap;
+    ComPtr<ID3D11BlendState> m_opaque, m_alpha, m_additive, m_premultiplied;
+    ComPtr<ID3D11SamplerState> m_linearWrap, m_linearClamp, m_pointClamp, m_pointWrap, m_anisoWrap;
 };
 
 } // namespace rs

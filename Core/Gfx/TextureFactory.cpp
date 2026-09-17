@@ -1,7 +1,10 @@
 #include "TextureFactory.h"
 #include "Util/Color.h"
 #include "Util/MathUtil.h"
+#include <algorithm>
 #include <cmath>
+#include <cstdlib>
+#include <cwchar>
 
 #pragma comment(lib, "gdi32.lib")
 
@@ -292,6 +295,162 @@ Image Rat(int size) {
             GdiPen p(dc, RGB(0, 0, 0), RGB(0, 0, 0), 1);
             int r = size / 40 + 1;
             Ellipse(dc, size * 13 / 16 - r, cy - size / 20 - r, size * 13 / 16 + r, cy - size / 20 + r); // eye
+        }
+    });
+}
+
+Image Checker(int w, int h, int cellsX, int cellsY, uint32_t a, uint32_t b) {
+    Image img(w, h);
+    for (int y = 0; y < h; ++y)
+        for (int x = 0; x < w; ++x)
+            img.At(x, y) = (((x * cellsX / w) + (y * cellsY / h)) & 1) ? b : a;
+    return img;
+}
+
+Image GdiMask(int w, int h, const std::function<void(HDC)>& draw, COLORREF color) {
+    Image img = Gdi(w, h, RGB(0, 0, 0), draw, RGB(255, 0, 255), false);
+    uint8_t cr = GetRValue(color), cg = GetGValue(color), cb = GetBValue(color);
+    for (auto& p : img.pixels) {
+        uint32_t r = p & 0xFF, g = (p >> 8) & 0xFF, b = (p >> 16) & 0xFF;
+        uint8_t luma = static_cast<uint8_t>((r * 299 + g * 587 + b * 114) / 1000);
+        p = PackRgba(cr, cg, cb, luma);
+    }
+    return img;
+}
+
+LOGFONTW MakeLogFont(const wchar_t* face, int pixelHeight, int weight, bool italic) {
+    LOGFONTW lf{};
+    lf.lfHeight = -std::max(pixelHeight, 1);
+    lf.lfWeight = weight;
+    lf.lfItalic = italic ? TRUE : FALSE;
+    lf.lfCharSet = DEFAULT_CHARSET;
+    lf.lfOutPrecision = OUT_TT_PRECIS;
+    lf.lfClipPrecision = CLIP_DEFAULT_PRECIS;
+    lf.lfQuality = ANTIALIASED_QUALITY;
+    lf.lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
+    wcsncpy_s(lf.lfFaceName, face, _TRUNCATE);
+    return lf;
+}
+
+Image TextImage(const std::wstring& text, const LOGFONTW& fontIn, COLORREF color, int padding) {
+    LOGFONTW lf = fontIn;
+    lf.lfQuality = ANTIALIASED_QUALITY;   // never ClearType: colour fringes have no meaning in a mask
+    if (text.empty()) return Image(1, 1, 0);
+
+    // Measure with a throwaway DC; italics overhang their advance so pad by a third of the height.
+    HDC screen = GetDC(nullptr);
+    HDC dc = CreateCompatibleDC(screen);
+    HFONT font = CreateFontIndirectW(&lf);
+    HGDIOBJ old = SelectObject(dc, font);
+    RECT rc{ 0, 0, 0, 0 };
+    DrawTextW(dc, text.c_str(), -1, &rc, DT_CALCRECT | DT_NOPREFIX | DT_LEFT | DT_NOCLIP);
+    SelectObject(dc, old);
+    DeleteDC(dc);
+    ReleaseDC(nullptr, screen);
+    int overhang = lf.lfItalic ? std::abs(lf.lfHeight) / 3 : 0;
+    int w = std::max<int>(rc.right - rc.left, 1) + 2 * padding + overhang;
+    int h = std::max<int>(rc.bottom - rc.top, 1) + 2 * padding;
+
+    Image img = GdiMask(w, h, [&](HDC d) {
+        HGDIOBJ prev = SelectObject(d, font);
+        SetBkMode(d, TRANSPARENT);
+        SetTextColor(d, RGB(255, 255, 255));
+        RECT r{ padding, padding, w - padding, h - padding };
+        DrawTextW(d, text.c_str(), -1, &r, DT_NOPREFIX | DT_LEFT | DT_NOCLIP);
+        SelectObject(d, prev);
+    }, color);
+    DeleteObject(font);
+    return img;
+}
+
+Image Emblem(int size, const uint32_t* paneColors) {
+    static const uint32_t kDefault[4] = { PackRgba(235, 50, 35), PackRgba(60, 180, 50), PackRgba(30, 110, 230), PackRgba(250, 200, 30) };
+    const uint32_t* pal = paneColors ? paneColors : kDefault;
+    Image img(size, size, 0);
+    const int ss = 3;                       // supersampling per axis
+    const float gap = 0.035f;               // pane separation as a fraction of the size
+    const float x0 = 0.06f, x1 = 0.94f;     // horizontal extent of the flag
+    auto wave = [](float u) { return 0.075f * std::sin(u * 4.2f - 0.9f); };
+    for (int y = 0; y < size; ++y) {
+        for (int x = 0; x < size; ++x) {
+            float acc[4] = { 0, 0, 0, 0 };
+            int cover = 0;
+            for (int sy = 0; sy < ss; ++sy) {
+                for (int sx = 0; sx < ss; ++sx) {
+                    float px = (x + (sx + 0.5f) / ss) / size;
+                    float py = (y + (sy + 0.5f) / ss) / size;
+                    if (px < x0 || px > x1) continue;
+                    float u = (px - x0) / (x1 - x0);            // 0..1 across the flag
+                    float top = 0.16f + wave(u), bottom = 0.84f + wave(u);
+                    if (py < top || py > bottom) continue;
+                    float v = (py - top) / (bottom - top);      // 0..1 down the flag
+                    // Pane boundaries: a vertical curve through the middle and the horizontal wave.
+                    float mid = 0.5f + 0.02f * std::sin(v * 3.0f);
+                    if (std::fabs(u - mid) < gap * 0.6f) continue;
+                    if (std::fabs(v - 0.5f) < gap * 0.6f) continue;
+                    if (std::fabs(px - x0) < gap * 0.5f || std::fabs(px - x1) < gap * 0.5f) continue;
+                    if (py - top < gap * 0.5f || bottom - py < gap * 0.5f) continue;
+                    int pane = (u < mid ? 0 : 1) + (v < 0.5f ? 0 : 2);
+                    // Shade by the wave slope so the cloth reads as lit from the upper left.
+                    float slope = 0.075f * 4.2f * std::cos(u * 4.2f - 0.9f);
+                    float k = Clamp(0.82f + 1.6f * slope, 0.55f, 1.15f);
+                    uint32_t c = pal[pane];
+                    acc[0] += (c & 0xFF) * k;
+                    acc[1] += ((c >> 8) & 0xFF) * k;
+                    acc[2] += ((c >> 16) & 0xFF) * k;
+                    acc[3] += static_cast<float>((c >> 24) & 0xFF);
+                    ++cover;
+                }
+            }
+            if (!cover) continue;
+            float n = static_cast<float>(ss * ss);
+            uint8_t a = static_cast<uint8_t>(Clamp(acc[3] / n, 0.0f, 255.0f) + 0.5f);
+            // Straight alpha: colour is the average over covered samples only.
+            uint8_t r = static_cast<uint8_t>(Clamp(acc[0] / cover, 0.0f, 255.0f) + 0.5f);
+            uint8_t g = static_cast<uint8_t>(Clamp(acc[1] / cover, 0.0f, 255.0f) + 0.5f);
+            uint8_t b = static_cast<uint8_t>(Clamp(acc[2] / cover, 0.0f, 255.0f) + 0.5f);
+            img.At(x, y) = PackRgba(r, g, b, a);
+        }
+    }
+    return img;
+}
+
+Image SoftDot(int size, float hardness) {
+    Image img(size, size, 0);
+    float half = size * 0.5f;
+    float soft = std::max(1.0f - Saturate(hardness), 0.02f);
+    for (int y = 0; y < size; ++y)
+        for (int x = 0; x < size; ++x) {
+            float dx = (x + 0.5f - half) / half, dy = (y + 0.5f - half) / half;
+            float r = std::sqrt(dx * dx + dy * dy);
+            float t = Saturate((1.0f - r) / soft);
+            float a = t * t * (3.0f - 2.0f * t);
+            img.At(x, y) = PackRgbaF(a, a, a, a);
+        }
+    return img;
+}
+
+Image DiscLogo(const std::wstring& text, int w, int h) {
+    return GdiMask(w, h, [&](HDC dc) {
+        int textH = h * 58 / 100;
+        LOGFONTW lf = MakeLogFont(L"Segoe UI", textH, FW_BLACK, true);
+        HFONT font = CreateFontIndirectW(&lf);
+        HGDIOBJ old = SelectObject(dc, font);
+        SetBkMode(dc, TRANSPARENT);
+        SetTextColor(dc, RGB(255, 255, 255));
+        RECT rc{ 0, 0, w, h * 62 / 100 };
+        DrawTextW(dc, text.c_str(), -1, &rc, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
+        SelectObject(dc, old);
+        DeleteObject(font);
+        // Flattened disc: white ring with a dark hole, under the text.
+        int cy = h * 80 / 100, ry = h * 13 / 100, rx = w * 46 / 100;
+        {
+            GdiPen p(dc, RGB(255, 255, 255), RGB(255, 255, 255), 1);
+            Ellipse(dc, w / 2 - rx, cy - ry, w / 2 + rx, cy + ry);
+        }
+        {
+            GdiPen p(dc, RGB(0, 0, 0), RGB(0, 0, 0), 1);
+            Ellipse(dc, w / 2 - rx / 3, cy - ry / 3, w / 2 + rx / 3, cy + ry / 3);
         }
     });
 }

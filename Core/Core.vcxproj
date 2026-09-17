@@ -34,6 +34,7 @@
     <ClInclude Include="Host\DialogUtil.h" />
     <ClInclude Include="Host\Log.h" />
     <ClInclude Include="Host\DesktopCapture.h" />
+    <ClInclude Include="Host\FontSettings.h" />
     <ClInclude Include="Gfx\Device.h" />
     <ClInclude Include="Gfx\SwapChain.h" />
     <ClInclude Include="Gfx\Mesh.h" />
@@ -52,6 +53,10 @@
     <ClInclude Include="Gfx\Camera.h" />
     <ClInclude Include="Gfx\Forward.h" />
     <ClInclude Include="Gfx\States.h" />
+    <ClInclude Include="Gfx\SpriteBatch2D.h" />
+    <ClInclude Include="Gfx\GlyphAtlas.h" />
+    <ClInclude Include="Gfx\TrailBuffer.h" />
+    <ClInclude Include="Gfx\ImageLoader.h" />
     <ClInclude Include="Util\Rng.h" />
     <ClInclude Include="Util\Color.h" />
     <ClInclude Include="Util\MathUtil.h" />
@@ -78,6 +83,10 @@
     <ClCompile Include="Gfx\PostProcess.cpp" />
     <ClCompile Include="Gfx\Forward.cpp" />
     <ClCompile Include="Gfx\States.cpp" />
+    <ClCompile Include="Gfx\SpriteBatch2D.cpp" />
+    <ClCompile Include="Gfx\GlyphAtlas.cpp" />
+    <ClCompile Include="Gfx\TrailBuffer.cpp" />
+    <ClCompile Include="Gfx\ImageLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\*_vs.hlsl">

@@ -1,9 +1,13 @@
 #include "DialogUtil.h"
 #include <commctrl.h>
 #include <commdlg.h>
+#include <shobjidl.h>
+#include <wrl/client.h>
 #include <cstdio>
 
 #pragma comment(lib, "comdlg32.lib")
+#pragma comment(lib, "ole32.lib")
+#pragma comment(lib, "shell32.lib")
 
 namespace rs::dlg {
 
@@ -76,6 +80,107 @@ bool PickBmpFile(HWND owner, std::wstring& path) {
     if (!GetOpenFileNameW(&ofn)) return false;
     path = buf;
     return true;
+}
+
+namespace {
+
+// IFileDialog needs COM on the calling thread; scrnsave.lib's WinMain does not initialise it.
+struct ComScope {
+    HRESULT hr;
+    ComScope() : hr(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE)) {}
+    ~ComScope() { if (SUCCEEDED(hr)) CoUninitialize(); }
+    bool Usable() const { return SUCCEEDED(hr) || hr == RPC_E_CHANGED_MODE; }
+};
+
+bool RunFileDialog(HWND owner, std::wstring& path, bool folder, const COMDLG_FILTERSPEC* filters, UINT filterCount, const wchar_t* title) {
+    ComScope com;
+    if (!com.Usable()) return false;
+    Microsoft::WRL::ComPtr<IFileOpenDialog> dlg;
+    if (FAILED(CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&dlg)))) return false;
+    DWORD opts = 0;
+    dlg->GetOptions(&opts);
+    opts |= FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_NOCHANGEDIR;
+    if (folder) opts |= FOS_PICKFOLDERS;
+    else opts |= FOS_FILEMUSTEXIST;
+    dlg->SetOptions(opts);
+    dlg->SetTitle(title);
+    if (filters && filterCount) {
+        dlg->SetFileTypes(filterCount, filters);
+        dlg->SetFileTypeIndex(1);
+    }
+    if (!path.empty()) {
+        // Start in the current selection's folder when it exists.
+        std::wstring dir = path;
+        if (!folder) {
+            size_t slash = dir.find_last_of(L"\\/");
+            dir = slash == std::wstring::npos ? L"" : dir.substr(0, slash);
+        }
+        Microsoft::WRL::ComPtr<IShellItem> item;
+        if (!dir.empty() && SUCCEEDED(SHCreateItemFromParsingName(dir.c_str(), nullptr, IID_PPV_ARGS(&item))))
+            dlg->SetFolder(item.Get());
+    }
+    if (FAILED(dlg->Show(owner))) return false;
+    Microsoft::WRL::ComPtr<IShellItem> result;
+    if (FAILED(dlg->GetResult(&result))) return false;
+    PWSTR name = nullptr;
+    if (FAILED(result->GetDisplayName(SIGDN_FILESYSPATH, &name)) || !name) return false;
+    path = name;
+    CoTaskMemFree(name);
+    return true;
+}
+
+} // namespace
+
+bool PickImageFile(HWND owner, std::wstring& path) {
+    static const COMDLG_FILTERSPEC filters[] = {
+        { L"Image files", L"*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.tif;*.tiff;*.webp;*.ico;*.heic" },
+        { L"All files", L"*.*" },
+    };
+    return RunFileDialog(owner, path, false, filters, 2, L"Choose an image");
+}
+
+bool PickFolder(HWND owner, std::wstring& path) {
+    return RunFileDialog(owner, path, true, nullptr, 0, L"Choose a folder");
+}
+
+bool PickFont(HWND owner, LOGFONTW& io) {
+    LOGFONTW lf = io;
+    CHOOSEFONTW cf{};
+    cf.lStructSize = sizeof(cf);
+    cf.hwndOwner = owner;
+    cf.lpLogFont = &lf;
+    cf.Flags = CF_SCREENFONTS | CF_INITTOLOGFONTSTRUCT | CF_NOSCRIPTSEL | CF_FORCEFONTEXIST;
+    if (!ChooseFontW(&cf)) return false;
+    // The dialog returns lfHeight in device units for the screen DPI; callers keep their own size
+    // slider, so only carry over the face and style.
+    wcsncpy_s(io.lfFaceName, lf.lfFaceName, _TRUNCATE);
+    io.lfWeight = lf.lfWeight;
+    io.lfItalic = lf.lfItalic;
+    io.lfUnderline = lf.lfUnderline;
+    io.lfStrikeOut = lf.lfStrikeOut;
+    io.lfCharSet = lf.lfCharSet;
+    io.lfPitchAndFamily = lf.lfPitchAndFamily;
+    return true;
+}
+
+std::wstring DescribeFont(const LOGFONTW& lf) {
+    std::wstring s = lf.lfFaceName;
+    if (lf.lfWeight >= FW_BOLD) s += L" Bold";
+    if (lf.lfItalic) s += L" Italic";
+    return s;
+}
+
+Swatch::~Swatch() { Reset(); }
+
+void Swatch::Reset() {
+    if (m_brush) DeleteObject(m_brush);
+    m_brush = nullptr;
+}
+
+void Swatch::Set(HWND dlg, int id, COLORREF color) {
+    Reset();
+    m_brush = CreateSolidBrush(color);
+    InvalidateRect(GetDlgItem(dlg, id), nullptr, TRUE);
 }
 
 bool PickColor(HWND owner, COLORREF& io) {

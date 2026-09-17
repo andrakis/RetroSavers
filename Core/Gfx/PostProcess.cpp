@@ -2,6 +2,7 @@
 #include "Shaders/Fullscreen_vs.h"
 #include "Shaders/Copy_ps.h"
 #include "Shaders/Blur_ps.h"
+#include "Shaders/Fill_ps.h"
 
 namespace rs {
 
@@ -10,7 +11,9 @@ void PostProcess::Create(Device& device) {
     ThrowIfFailed(d->CreateVertexShader(g_Fullscreen_vs, sizeof(g_Fullscreen_vs), nullptr, &m_vs), "CreateVertexShader(Fullscreen)");
     ThrowIfFailed(d->CreatePixelShader(g_Copy_ps, sizeof(g_Copy_ps), nullptr, &m_copyPs), "CreatePixelShader(Copy)");
     ThrowIfFailed(d->CreatePixelShader(g_Blur_ps, sizeof(g_Blur_ps), nullptr, &m_blurPs), "CreatePixelShader(Blur)");
+    ThrowIfFailed(d->CreatePixelShader(g_Fill_ps, sizeof(g_Fill_ps), nullptr, &m_fillPs), "CreatePixelShader(Fill)");
     m_blurCb.Create(device);
+    m_fillCb.Create(device);
     m_states.Create(device);
 }
 
@@ -34,6 +37,14 @@ void PostProcess::Copy(ID3D11DeviceContext* ctx, ID3D11ShaderResourceView* src, 
     Draw(ctx, m_copyPs.Get());
     ID3D11ShaderResourceView* null = nullptr;
     ctx->PSSetShaderResources(0, 1, &null);
+}
+
+void PostProcess::Fill(ID3D11DeviceContext* ctx, const DirectX::XMFLOAT4& color, ID3D11BlendState* blend) {
+    m_states.Set2D(ctx, blend ? blend : m_states.Opaque());
+    FillCB cb{ color };
+    m_fillCb.Update(ctx, cb);
+    m_fillCb.BindPS(ctx, 0);
+    Draw(ctx, m_fillPs.Get());
 }
 
 void PostProcess::GaussianBlur(Device& device, const RenderTexture& src, RenderTexture& tmp, RenderTexture& dst, int passes) {

@@ -42,6 +42,9 @@ void States::Create(Device& device) {
     bd.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
     bd.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
     ThrowIfFailed(d->CreateBlendState(&bd, &m_additive), "CreateBlendState");
+    bd.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+    bd.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+    ThrowIfFailed(d->CreateBlendState(&bd, &m_premultiplied), "CreateBlendState");
 
     D3D11_SAMPLER_DESC sd{};
     sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -53,6 +56,9 @@ void States::Create(Device& device) {
     ThrowIfFailed(d->CreateSamplerState(&sd, &m_linearClamp), "CreateSamplerState");
     sd.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
     ThrowIfFailed(d->CreateSamplerState(&sd, &m_pointClamp), "CreateSamplerState");
+    sd.AddressU = sd.AddressV = sd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    ThrowIfFailed(d->CreateSamplerState(&sd, &m_pointWrap), "CreateSamplerState");
+    sd.AddressU = sd.AddressV = sd.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
     sd.Filter = D3D11_FILTER_ANISOTROPIC;
     sd.MaxAnisotropy = 8;
     sd.AddressU = sd.AddressV = sd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;

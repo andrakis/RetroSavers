@@ -8,6 +8,7 @@
 #include "Util/Rng.h"
 #include <scrnsave.h>
 #include <commctrl.h>
+#include <objbase.h>
 #include <atomic>
 #include <optional>
 #include <thread>
@@ -16,6 +17,7 @@
 #include <cwchar>
 
 #pragma comment(lib, "comctl32.lib")
+#pragma comment(lib, "ole32.lib")
 // Common Controls v6 so the config dialogs get themed trackbars/buttons.
 #pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
@@ -60,6 +62,8 @@ void FillContext(SaverContext& ctx, const MonitorInfo& m, int index, int count, 
 }
 
 void RenderLoop(HostState& s) {
+    // WIC / DirectWrite / D2D on the render thread need COM.
+    const HRESULT comHr = CoInitializeEx(nullptr, COINIT_MULTITHREADED | COINIT_DISABLE_OLE1DDE);
     try {
         Device device;
         RECT rc{};
@@ -139,6 +143,7 @@ void RenderLoop(HostState& s) {
         LogLine(L"Render thread error: unknown exception");
         PostMessageW(s.hwnd, WM_CLOSE, 0, 0);
     }
+    if (SUCCEEDED(comHr)) CoUninitialize();
 }
 
 void StopThread() {

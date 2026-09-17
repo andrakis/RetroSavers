@@ -31,7 +31,31 @@ void MirrorTrackbar(HWND dlg, int trackbarId, int labelId, const wchar_t* prefix
 // Modal *.bmp picker. Returns false if cancelled.
 bool PickBmpFile(HWND owner, std::wstring& path);
 
+// Modal picker for any WIC-decodable image (jpg/png/bmp/gif/tif/webp...). Returns false if cancelled.
+bool PickImageFile(HWND owner, std::wstring& path);
+
+// Modal folder picker (IFileDialog). Returns false if cancelled.
+bool PickFolder(HWND owner, std::wstring& path);
+
 // Windows colour picker; io is updated on OK.
 bool PickColor(HWND owner, COLORREF& io);
+
+// Windows font picker; io is updated on OK. lfHeight stays in the caller's units (pixels).
+bool PickFont(HWND owner, LOGFONTW& io);
+
+// "Segoe UI, 24 px, Bold Italic" for a label beside a font button.
+std::wstring DescribeFont(const LOGFONTW& lf);
+
+// Colour swatch helpers for LTEXT controls with SS_SUNKEN: keep one brush per swatch, refresh
+// after PickColor, return it from WM_CTLCOLORSTATIC and free them on WM_DESTROY.
+class Swatch {
+public:
+    ~Swatch();
+    void Set(HWND dlg, int id, COLORREF color);          // (re)creates the brush and repaints
+    HBRUSH Brush() const { return m_brush; }
+    void Reset();
+private:
+    HBRUSH m_brush = nullptr;
+};
 
 } // namespace rs::dlg
