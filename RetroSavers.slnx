@@ -12,6 +12,7 @@
     <Project Path="Savers/Matrix/Matrix.vcxproj" />
     <Project Path="Savers/DVDBounce/DVDBounce.vcxproj" />
     <Project Path="Savers/FlyingWindows/FlyingWindows.vcxproj" />
+    <Project Path="Savers/Marquee/Marquee.vcxproj" />
   </Folder>
   <Folder Name="/Tools/">
     <Project Path="tools/PreviewHost/PreviewHost.vcxproj" />

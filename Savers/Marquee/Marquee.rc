@@ -1,0 +1,75 @@
+#include <windows.h>
+#include <commctrl.h>
+#include <scrnsave.h>
+#include "resource.h"
+
+// IDS_DESCRIPTION (1): the name shown in the Screen Saver Settings dropdown.
+STRINGTABLE
+BEGIN
+    IDS_DESCRIPTION "Marquee"
+END
+
+ID_APP ICON "..\\..\\assets\\RetroSavers.ico"
+
+DLG_SCRNSAVECONFIGURE DIALOGEX 0, 0, 280, 196
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Marquee Settings"
+FONT 9, "Segoe UI", 400, 0, 0x1
+BEGIN
+    LTEXT           "&Text:", -1, 12, 14, 50, 10
+    EDITTEXT        IDC_TEXT, 64, 12, 206, 13, ES_AUTOHSCROLL
+
+    LTEXT           "Font:", -1, 12, 36, 50, 10
+    PUSHBUTTON      "&Format Text...", IDC_FONT, 64, 33, 64, 14
+    LTEXT           "Segoe UI Bold", IDC_FONT_LABEL, 134, 36, 136, 10
+
+    LTEXT           "&Size:", -1, 12, 60, 50, 10
+    CONTROL         "", IDC_SIZE_TB, TRACKBAR_CLASS, TBS_AUTOTICKS | WS_TABSTOP, 64, 56, 170, 18
+    LTEXT           "72", IDC_SIZE_LABEL, 240, 60, 30, 10
+    LTEXT           "S&peed:", -1, 12, 84, 50, 10
+    CONTROL         "", IDC_SPEED, TRACKBAR_CLASS, TBS_AUTOTICKS | WS_TABSTOP, 64, 80, 170, 18
+    LTEXT           "5", IDC_SPEED_LABEL, 240, 84, 30, 10
+
+    GROUPBOX        "Position", -1, 8, 104, 120, 40
+    AUTORADIOBUTTON "&Random", IDC_POS_RANDOM, 16, 118, 50, 10, WS_GROUP
+    AUTORADIOBUTTON "&Centred", IDC_POS_CENTRED, 70, 118, 50, 10
+    AUTOCHECKBOX    "&Mirror", IDC_MIRROR, 16, 130, 60, 10
+
+    LTEXT           "Text colour:", -1, 134, 110, 50, 10
+    PUSHBUTTON      "Colour...", IDC_TEXT_COLOR, 186, 107, 46, 14
+    LTEXT           "", IDC_TEXT_SWATCH, 236, 107, 24, 14, SS_SUNKEN
+    LTEXT           "Background:", -1, 134, 130, 50, 10
+    PUSHBUTTON      "Colour...", IDC_BG_COLOR, 186, 127, 46, 14
+    LTEXT           "", IDC_BG_SWATCH, 236, 127, 24, 14, SS_SUNKEN
+
+    PUSHBUTTON      "&Defaults", IDC_DEFAULTS, 12, 170, 50, 14
+    DEFPUSHBUTTON   "OK", IDOK, 166, 170, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 220, 170, 50, 14
+END
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "FileDescription", "Marquee screen saver (RetroSavers)"
+            VALUE "FileVersion", "1.0.0.0"
+            VALUE "InternalName", "Marquee.scr"
+            VALUE "OriginalFilename", "Marquee.scr"
+            VALUE "ProductName", "RetroSavers"
+            VALUE "ProductVersion", "1.0.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

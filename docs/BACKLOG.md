@@ -56,7 +56,7 @@ Each entry: what it renders · algorithm · Core reuse · settings. Effort S/M/L
   from the vanishing point. Starfield's z-model and `dpiScale` projection, **C1** instances with
   the `Emblem` uvRect, size ∝ 1/z, optional slow spin, optional background stars.
   Settings: Density (10–200), Warp speed, Image path, Pane colours ×4, Spin, Stars.
-- [ ] **Marquee** (S/M) — *Marquee (Win 3.1 – XP).* Text scrolls right-to-left, re-entering at a
+- [x] **Marquee** (S/M) — *Marquee (Win 3.1 – XP).* Text scrolls right-to-left, re-entering at a
   random (or centred) vertical position. `TextImage` (**C2**) at the chosen `LOGFONTW` × `dpiScale`;
   chunked at 8192 px for long strings. **C1** with `AlphaBlend`; background via `ClearColor()`.
   Mirror option = flipped uvRect.
