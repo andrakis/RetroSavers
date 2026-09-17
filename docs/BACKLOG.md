@@ -92,7 +92,7 @@ Each entry: what it renders · algorithm · Core reuse · settings. Effort S/M/L
   Random. Surface: solid, textured (**C7** or `Marble`); "Reflection" deferred (no env-map path in
   `Phong_ps`).
   Settings: Text, Show time (12/24h), Font, Size, Depth, Resolution, Rotation, Speed, Surface, Colour, Texture.
-- [ ] **Bubbles** (M) — *Bubbles (Vista+).* `captureDesktop` from a settings read in `Main.cpp`
+- [x] **Bubbles** (M) — shipped as `BubblesVista` (Windows has its own `Bubbles.scr`). — *Bubbles (Vista+).* `captureDesktop` from a settings read in `Main.cpp`
   (Mystify95 pattern), crop `Host::DesktopImage()` per viewport as `InitPersistentTarget` does;
   preview = dark gradient. Bubbles are **C1** quads with a PS override: `n = (d, sqrt(1-r²))`,
   Fresnel `0.04 + 0.96(1-n.z)^5`, thin-film cosine palette by `n.z` + per-bubble phase, desktop
