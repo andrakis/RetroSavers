@@ -1,0 +1,13 @@
+.vs/
+x64/
+Debug/
+Release/
+bin/
+obj/
+artifacts/
+_template_old/
+*.user
+*.suo
+*.ipch
+*.db
+*.opendb

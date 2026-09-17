@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Shared by every Savers/<Name>/<Name>.vcxproj: turns the project into a .scr that links Core + scrnsave. -->
+  <PropertyGroup>
+    <TargetExt>.scr</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies>ScrnSavW.lib;comctl32.lib;d3d11.lib;dxgi.lib;shcore.lib;comdlg32.lib;gdi32.lib;user32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <FxCompile>
+      <AdditionalIncludeDirectories>$(RetroSaversRoot)Core\Shaders;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </FxCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(RetroSaversRoot)Core\Core.vcxproj">
+      <Project>{A1C00E00-0000-4000-8000-000000000001}</Project>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

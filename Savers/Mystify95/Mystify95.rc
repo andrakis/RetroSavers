@@ -1,0 +1,73 @@
+#include <windows.h>
+#include <commctrl.h>
+#include <scrnsave.h>
+#include "resource.h"
+
+STRINGTABLE
+BEGIN
+    IDS_DESCRIPTION "Mystify Your Mind"
+END
+
+ID_APP ICON "..\\..\\assets\\RetroSavers.ico"
+
+DLG_SCRNSAVECONFIGURE DIALOGEX 0, 0, 312, 196
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Mystify Your Mind Settings"
+FONT 9, "Segoe UI", 400, 0, 0x1
+BEGIN
+    GROUPBOX        "Shape 1", -1, 8, 6, 144, 140
+    AUTOCHECKBOX    "&Active", IDC_S1_ACTIVE, 16, 20, 60, 10
+    LTEXT           "Lines:", -1, 16, 40, 28, 10
+    CONTROL         "", IDC_S1_LINES, TRACKBAR_CLASS, TBS_AUTOTICKS | WS_TABSTOP, 44, 36, 80, 18
+    LTEXT           "5", IDC_S1_LINES_LABEL, 128, 40, 20, 10
+    AUTORADIOBUTTON "&Two colors", IDC_S1_TWO, 16, 62, 80, 10, WS_GROUP
+    PUSHBUTTON      "Color 1...", IDC_S1_COLOR1, 30, 76, 50, 14
+    LTEXT           "", IDC_S1_SWATCH1, 86, 76, 24, 14, SS_SUNKEN
+    PUSHBUTTON      "Color 2...", IDC_S1_COLOR2, 30, 94, 50, 14
+    LTEXT           "", IDC_S1_SWATCH2, 86, 94, 24, 14, SS_SUNKEN
+    AUTORADIOBUTTON "&Multiple random colors", IDC_S1_RANDOM, 16, 116, 120, 10
+
+    GROUPBOX        "Shape 2", -1, 160, 6, 144, 140
+    AUTOCHECKBOX    "A&ctive", IDC_S2_ACTIVE, 168, 20, 60, 10
+    LTEXT           "Lines:", -1, 168, 40, 28, 10
+    CONTROL         "", IDC_S2_LINES, TRACKBAR_CLASS, TBS_AUTOTICKS | WS_TABSTOP, 196, 36, 80, 18
+    LTEXT           "5", IDC_S2_LINES_LABEL, 280, 40, 20, 10
+    AUTORADIOBUTTON "T&wo colors", IDC_S2_TWO, 168, 62, 80, 10, WS_GROUP
+    PUSHBUTTON      "Color 1...", IDC_S2_COLOR1, 182, 76, 50, 14
+    LTEXT           "", IDC_S2_SWATCH1, 238, 76, 24, 14, SS_SUNKEN
+    PUSHBUTTON      "Color 2...", IDC_S2_COLOR2, 182, 94, 50, 14
+    LTEXT           "", IDC_S2_SWATCH2, 238, 94, 24, 14, SS_SUNKEN
+    AUTORADIOBUTTON "M&ultiple random colors", IDC_S2_RANDOM, 168, 116, 120, 10
+
+    AUTOCHECKBOX    "Clear &screen", IDC_CLEAR, 12, 154, 100, 10
+    PUSHBUTTON      "&Defaults", IDC_DEFAULTS, 12, 172, 50, 14
+    DEFPUSHBUTTON   "OK", IDOK, 196, 172, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 252, 172, 50, 14
+END
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "FileDescription", "Mystify Your Mind screen saver (RetroSavers)"
+            VALUE "FileVersion", "1.0.0.0"
+            VALUE "InternalName", "Mystify95.scr"
+            VALUE "OriginalFilename", "Mystify95.scr"
+            VALUE "ProductName", "RetroSavers"
+            VALUE "ProductVersion", "1.0.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

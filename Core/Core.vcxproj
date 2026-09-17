@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>18.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{A1C00E00-0000-4000-8000-000000000001}</ProjectGuid>
+    <RootNamespace>Core</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ItemGroup>
+    <ClInclude Include="Saver.h" />
+    <ClInclude Include="Host\Host.h" />
+    <ClInclude Include="Host\Monitors.h" />
+    <ClInclude Include="Host\Settings.h" />
+    <ClInclude Include="Host\DialogUtil.h" />
+    <ClInclude Include="Host\Log.h" />
+    <ClInclude Include="Host\DesktopCapture.h" />
+    <ClInclude Include="Gfx\Device.h" />
+    <ClInclude Include="Gfx\SwapChain.h" />
+    <ClInclude Include="Gfx\Mesh.h" />
+    <ClInclude Include="Gfx\Vertex.h" />
+    <ClInclude Include="Gfx\ConstantBuffer.h" />
+    <ClInclude Include="Gfx\Primitives.h" />
+    <ClInclude Include="Gfx\Teapot.h" />
+    <ClInclude Include="Gfx\TeapotData.h" />
+    <ClInclude Include="Gfx\LineRenderer2D.h" />
+    <ClInclude Include="Gfx\Billboard.h" />
+    <ClInclude Include="Gfx\Texture.h" />
+    <ClInclude Include="Gfx\TextureFactory.h" />
+    <ClInclude Include="Gfx\BmpReader.h" />
+    <ClInclude Include="Gfx\RenderTexture.h" />
+    <ClInclude Include="Gfx\PostProcess.h" />
+    <ClInclude Include="Gfx\Camera.h" />
+    <ClInclude Include="Gfx\Forward.h" />
+    <ClInclude Include="Gfx\States.h" />
+    <ClInclude Include="Util\Rng.h" />
+    <ClInclude Include="Util\Color.h" />
+    <ClInclude Include="Util\MathUtil.h" />
+    <ClInclude Include="Util\RegKey.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Host\Host.cpp" />
+    <ClCompile Include="Host\Monitors.cpp" />
+    <ClCompile Include="Host\Settings.cpp" />
+    <ClCompile Include="Host\DialogUtil.cpp" />
+    <ClCompile Include="Host\Log.cpp" />
+    <ClCompile Include="Host\DesktopCapture.cpp" />
+    <ClCompile Include="Gfx\Device.cpp" />
+    <ClCompile Include="Gfx\SwapChain.cpp" />
+    <ClCompile Include="Gfx\Mesh.cpp" />
+    <ClCompile Include="Gfx\Primitives.cpp" />
+    <ClCompile Include="Gfx\Teapot.cpp" />
+    <ClCompile Include="Gfx\LineRenderer2D.cpp" />
+    <ClCompile Include="Gfx\Billboard.cpp" />
+    <ClCompile Include="Gfx\Texture.cpp" />
+    <ClCompile Include="Gfx\TextureFactory.cpp" />
+    <ClCompile Include="Gfx\BmpReader.cpp" />
+    <ClCompile Include="Gfx\RenderTexture.cpp" />
+    <ClCompile Include="Gfx\PostProcess.cpp" />
+    <ClCompile Include="Gfx\Forward.cpp" />
+    <ClCompile Include="Gfx\States.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\*_vs.hlsl">
+      <ShaderType>Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\*_ps.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <None Include="Shaders\Common.hlsli" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

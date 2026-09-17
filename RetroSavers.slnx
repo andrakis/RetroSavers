@@ -1,0 +1,17 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+  </Configurations>
+  <Folder Name="/Savers/">
+    <Project Path="Savers/Starfield/Starfield.vcxproj" />
+    <Project Path="Savers/Mystify95/Mystify95.vcxproj" />
+    <Project Path="Savers/Beziers/Beziers.vcxproj" />
+    <Project Path="Savers/Pipes3D/Pipes3D.vcxproj" />
+    <Project Path="Savers/Aurora/Aurora.vcxproj" />
+    <Project Path="Savers/Maze3D/Maze3D.vcxproj" />
+  </Folder>
+  <Folder Name="/Tools/">
+    <Project Path="tools/PreviewHost/PreviewHost.vcxproj" />
+  </Folder>
+  <Project Path="Core/Core.vcxproj" />
+</Solution>

@@ -1,0 +1,76 @@
+# RetroSavers
+
+Classic Microsoft screen savers rebuilt for Windows 11 as native `.scr` files.
+C++20, Direct3D 11, no third-party code — only the Windows SDK (`scrnsave.lib`, `d3d11`, DirectXMath).
+
+| Saver | Original | Notes |
+|---|---|---|
+| `Starfield.scr` | Starfield Simulation (Win 3.1) | Warp-speed star field |
+| `Mystify95.scr` | Mystify Your Mind (Win 3.1 / 95) | Two bouncing polygons with trails; "Clear screen" off draws over the live desktop |
+| `Beziers.scr` | Béziers (2000 / XP) | Closed loop of cubic Béziers with a colour-cycling trail |
+| `Pipes3D.scr` | 3D Pipes (NT 4 / 95 Plus!) | Elbow / ball / mixed joints, textured mode, the teapot |
+| `Aurora.scr` | Aurora (Vista) | Pixel-shader curtains with bloom |
+| `Maze3D.scr` | 3D Maze (NT 4 / 95 Plus!) | Right-hand-rule walk, smiley, OpenGL logo, rats, the rock that flips the world |
+
+## Building
+
+Requirements: Visual Studio 2026 (v145 toolset), Windows SDK 10.0.26100, x64.
+
+```powershell
+# everything, Release, collected into artifacts\
+.\build\publish.ps1
+
+# a single saver from the terminal
+& "C:\Program Files\Microsoft Visual Studio\18\Insiders\MSBuild\Current\Bin\MSBuild.exe" Savers\Pipes3D\Pipes3D.vcxproj /p:Configuration=Debug /p:Platform=x64
+```
+
+Outputs land in `bin\x64-<Config>\` (`<Name>.scr`, `Core.lib`, `PreviewHost.exe`).
+`RetroSavers.slnx` opens in Visual Studio and builds the same projects.
+
+## Installing
+
+```powershell
+.\build\install.ps1                 # copy the .scr files to %LOCALAPPDATA%\RetroSavers
+.\build\install.ps1 -Saver Pipes3D  # ...and make 3D Pipes the active screen saver (opens its settings)
+.\build\install.ps1 -System         # (elevated) also copy into C:\Windows\System32 so they appear in the
+                                    # Screen Saver Settings dropdown beside Bubbles / Ribbons
+```
+
+Any `.scr` can also be right-clicked in Explorer → **Install**.
+
+## Developing
+
+`bin\x64-Debug\PreviewHost.exe <path\to\Saver.scr>` hosts a saver in a resizable window using the
+same `/p <hwnd>` protocol as the Windows preview. Buttons run the config dialog (`/c:<hwnd>`),
+restart the preview, or launch fullscreen (`/s`). F5 restarts.
+
+Command line switches (standard for screen savers):
+
+| Switch | Meaning |
+|---|---|
+| `/s` | Run fullscreen; exits on mouse move, key, or click |
+| `/p <hwnd>` | Render inside the given window (preview) |
+| `/c` or `/c:<hwnd>` | Show the settings dialog |
+
+Debug builds turn on the D3D11 debug layer when the *Graphics Tools* optional feature is installed.
+Errors on the render thread go to `%LOCALAPPDATA%\RetroSavers\log.txt`.
+Set `RETROSAVERS_FAKE_MONITORS=2` to split the primary monitor into two viewports and exercise the
+multi-monitor path on a single display.
+
+Settings live under `HKCU\Software\RetroSavers\<Saver>`.
+
+## Layout
+
+```
+Core/            static library: scrnsave host + render thread, D3D11 wrappers, primitives,
+                 procedural textures, line renderer, billboards, post-processing, settings
+Savers/<Name>/   one project per saver: Main.cpp (scrnsave entry points), <Name>Saver.*,
+                 Config.cpp (dialog), <Name>.rc, resource.h, Shaders/
+tools/PreviewHost/   windowed dev harness
+build/           publish.ps1, install.ps1
+assets/          shared icon
+```
+
+HLSL under a project's `Shaders\` folder is compiled by the VS HLSL build step into byte-code headers
+(`*_vs.hlsl` → vertex, `*_ps.hlsl` → pixel) included as `"Shaders/<Name>.h"` exposing `g_<Name>`.
+No shaders are compiled at runtime.
