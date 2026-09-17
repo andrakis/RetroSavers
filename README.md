@@ -18,6 +18,7 @@ C++20, Direct3D 11, no third-party code — only the Windows SDK (`scrnsave.lib`
 | `Fireworks.scr` | Fireworks | Rockets burst into peonies, chrysanthemums, rings, willows and crackles with trails and bloom |
 | `BoingBall.scr` | Amiga Boing Ball (1984) | Checkered sphere on a tilted axis bouncing round a purple wire room, shadow on the wall |
 | `PersianRug.scr` | Persian Rug (Win 3.x era) | "Persian recursion" rug woven line by line as spaced dots (or solid), palette cycling, square / stretch / tile |
+| `Text3D.scr` | 3D Text (95 Plus! / NT / XP) | Extruded text or clock in any font (DirectWrite outlines), spin / see-saw / wobble / tumble, solid / marble / checker / image |
 
 ## Building
 

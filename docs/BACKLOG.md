@@ -32,7 +32,7 @@ Built once; listed in the order Tier 1 needs them. Tier 1 needs C1, C2, C3, C9, 
 | C4 | `LineRenderer2D`: `Triangle`/`Quad`/`Strip` as a second `TRIANGLELIST` batch | | Ribbons, Energy, Starry Night, Boing grid/shadow | [ ] |
 | C5 | `Mesh::CreateDynamic` + `Mesh::Update(MeshData)` | `DYNAMIC`, `WRITE_DISCARD`. | Flying Objects, CPU FlowerBox | [ ] |
 | C6 | `Forward`: public `BindMaterial(ctx, material, world)` + `PixelShader()` getter | A saver can bind its own VS but reuse `PerFrame`/`PerObject` and `Phong_ps`. | FlowerBox morph VS | [ ] |
-| C8 | `Core\Gfx\FontMesh` (DirectWrite outline → D2D `Tessellate` + `Simplify` → extruded `MeshData`) | See 3D Text. | 3D Text | [ ] |
+| C8 | `Core\Gfx\FontMesh` (DirectWrite outline → D2D `Tessellate` + `Simplify` → extruded `MeshData`) | See 3D Text. | 3D Text | [x] |
 
 ---
 
@@ -82,7 +82,7 @@ Each entry: what it renders · algorithm · Core reuse · settings. Effort S/M/L
 
 ## Tier 2 — medium (next sessions, roughly in this order)
 
-- [ ] **Text3D** (L) — *3D Text*, incl. clock mode. Font → mesh via **C8**: DirectWrite
+- [x] **Text3D** (L) — *3D Text*, incl. clock mode. Font → mesh via **C8**: DirectWrite
   `IDWriteFontFace::GetGlyphRunOutline` into an `ID2D1PathGeometry` (D2D factory only, no render
   target) → `Outline()` to union overlaps → `Tessellate()` for the front cap (handles holes /
   winding), mirrored copy for the back cap → `Simplify(LINES)` contours extruded into side quads,

@@ -57,6 +57,7 @@
     <ClInclude Include="Gfx\GlyphAtlas.h" />
     <ClInclude Include="Gfx\TrailBuffer.h" />
     <ClInclude Include="Gfx\ImageLoader.h" />
+    <ClInclude Include="Gfx\FontMesh.h" />
     <ClInclude Include="Util\Rng.h" />
     <ClInclude Include="Util\Color.h" />
     <ClInclude Include="Util\MathUtil.h" />
@@ -87,6 +88,7 @@
     <ClCompile Include="Gfx\GlyphAtlas.cpp" />
     <ClCompile Include="Gfx\TrailBuffer.cpp" />
     <ClCompile Include="Gfx\ImageLoader.cpp" />
+    <ClCompile Include="Gfx\FontMesh.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\*_vs.hlsl">
