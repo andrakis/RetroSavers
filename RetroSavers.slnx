@@ -18,6 +18,7 @@
     <Project Path="Savers/PersianRug/PersianRug.vcxproj" />
     <Project Path="Savers/Text3D/Text3D.vcxproj" />
     <Project Path="Savers/BubblesVista/BubblesVista.vcxproj" />
+    <Project Path="Savers/Photos/Photos.vcxproj" />
   </Folder>
   <Folder Name="/Tools/">
     <Project Path="tools/PreviewHost/PreviewHost.vcxproj" />

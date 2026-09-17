@@ -99,7 +99,7 @@ Each entry: what it renders · algorithm · Core reuse · settings. Effort S/M/L
   refraction by sampling the desktop texture at `screenUV + n.xy·k`, specular blob, rim darkening;
   `PremultipliedAlpha()` (**C11**). Circles with elastic pairwise collisions (≤40), radius wobble.
   Settings: Count, Size, Speed, Show on desktop, Colour mode, Wobble.
-- [ ] **Photos** (M/L) — *Photos slideshow.* Recursive enumeration of jpg/png/bmp/gif/tif,
+- [x] **Photos** (M/L) — *Photos slideshow.* Recursive enumeration of jpg/png/bmp/gif/tif,
   shuffled; a worker thread decodes the *next* image via **C7** (`maxDim` = 2× viewport) into an
   `Image` under a mutex; the render thread uploads with `Texture::FromImage`. Fullscreen
   `Photos_ps`: two textures + blend + per-image affine (fit/fill, slow Ken Burns), letterbox.
