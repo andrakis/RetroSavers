@@ -11,6 +11,7 @@ C++20, Direct3D 11, no third-party code — only the Windows SDK (`scrnsave.lib`
 | `Pipes3D.scr` | 3D Pipes (NT 4 / 95 Plus!) | Elbow / ball / mixed joints, textured mode, the teapot |
 | `Aurora.scr` | Aurora (Vista) | Pixel-shader curtains with bloom |
 | `Maze3D.scr` | 3D Maze (NT 4 / 95 Plus!) | Right-hand-rule walk, smiley, OpenGL logo, rats, the rock that flips the world |
+| `Matrix.scr` | Matrix digital rain | Mirrored half-width katakana, bright heads, fading trails, optional afterglow |
 
 ## Building
 

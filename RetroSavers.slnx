@@ -9,6 +9,7 @@
     <Project Path="Savers/Pipes3D/Pipes3D.vcxproj" />
     <Project Path="Savers/Aurora/Aurora.vcxproj" />
     <Project Path="Savers/Maze3D/Maze3D.vcxproj" />
+    <Project Path="Savers/Matrix/Matrix.vcxproj" />
   </Folder>
   <Folder Name="/Tools/">
     <Project Path="tools/PreviewHost/PreviewHost.vcxproj" />

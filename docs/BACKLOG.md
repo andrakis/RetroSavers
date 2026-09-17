@@ -40,7 +40,7 @@ Built once; listed in the order Tier 1 needs them. Tier 1 needs C1, C2, C3, C9, 
 
 Each entry: what it renders · algorithm · Core reuse · settings. Effort S/M/L.
 
-- [ ] **Matrix** (M) — *Matrix digital rain.* Columns of falling half-width katakana + digits +
+- [x] **Matrix** (M) — *Matrix digital rain.* Columns of falling half-width katakana + digits +
   Latin, mirrored, green with near-white heads and a fading trail; cells re-randomise with a small
   probability (flicker). Atlas via **C2** from `MS Gothic` (fallback Consolas), U+FF66–FF9D +
   `0-9A-Z`, cell size × `dpiScale`. Per column: head y, speed, trail length, glyph index per cell.
