@@ -455,6 +455,80 @@ Image DiscLogo(const std::wstring& text, int w, int h) {
     });
 }
 
+Image Toaster(int frameW, int frameH, int frames) {
+    return Gdi(frameW * frames, frameH, RGB(255, 0, 255), [&](HDC dc) {
+        for (int f = 0; f < frames; ++f) {
+            const int ox = f * frameW;
+            const int bodyL = ox + frameW / 8, bodyR = ox + frameW * 7 / 8, bodyT = frameH * 6 / 12, bodyB = frameH * 11 / 12;
+            // Body: chrome box with a darker base band, two slots on top, a lever and a highlight.
+            {
+                GdiPen p(dc, RGB(70, 70, 80), RGB(200, 204, 212), 2);
+                RoundRect(dc, bodyL, bodyT, bodyR, bodyB, frameW / 8, frameH / 8);
+            }
+            {
+                GdiPen p(dc, RGB(70, 70, 80), RGB(150, 152, 160), 1);
+                Rectangle(dc, bodyL + 3, bodyB - frameH / 9, bodyR - 3, bodyB - 3);
+            }
+            {
+                GdiPen p(dc, RGB(40, 40, 45), RGB(40, 40, 45), 1);
+                int slotY = bodyT + 3, slotH = frameH / 20 + 2;
+                Rectangle(dc, bodyL + frameW / 8, slotY, ox + frameW / 2 - 3, slotY + slotH);
+                Rectangle(dc, ox + frameW / 2 + 3, slotY, bodyR - frameW / 8, slotY + slotH);
+            }
+            {
+                GdiPen p(dc, RGB(60, 60, 60), RGB(30, 30, 30), 1);
+                Rectangle(dc, bodyL + frameW / 12, bodyT + frameH / 5, bodyL + frameW / 12 + 6, bodyT + frameH / 5 + frameH / 10);
+            }
+            {
+                GdiPen p(dc, RGB(255, 255, 255), RGB(255, 255, 255), 1);
+                Rectangle(dc, bodyL + 6, bodyT + 6, bodyL + 10, bodyB - frameH / 8);
+            }
+            // Wing on top of the body: a feathered white wing that flaps between raised and swept.
+            float flap = std::sin(static_cast<float>(f) / frames * kTwoPi);   // -1..1
+            {
+                GdiPen p(dc, RGB(90, 90, 100), RGB(245, 245, 250), 2);
+                int rx = ox + frameW / 2, ry = bodyT + 2;                        // wing root on the lid
+                int lift = static_cast<int>(frameH * 0.22f * (0.6f + 0.4f * flap));
+                int sweep = static_cast<int>(frameW * 0.12f * flap);
+                POINT wing[] = {
+                    { rx - frameW / 10, ry }, { rx - frameW / 8 + sweep, ry - lift },
+                    { rx + frameW / 6 + sweep, ry - lift - frameH / 8 }, { rx + frameW * 2 / 5 + sweep, ry - lift - frameH / 14 },
+                    { rx + frameW * 2 / 5 + sweep - frameW / 16, ry - lift + frameH / 12 },
+                    { rx + frameW / 5 + sweep, ry - lift / 2 }, { rx + frameW / 8, ry },
+                };
+                Polygon(dc, wing, 7);
+                // Feather lines.
+                HPEN pen = CreatePen(PS_SOLID, 1, RGB(160, 160, 170));
+                HGDIOBJ old = SelectObject(dc, pen);
+                for (int k = 1; k <= 3; ++k) {
+                    MoveToEx(dc, rx + frameW / 24 * k, ry - 2, nullptr);
+                    LineTo(dc, rx + frameW / 6 + sweep + k * frameW / 14, ry - lift - frameH / 12 + k * frameH / 20);
+                }
+                SelectObject(dc, old);
+                DeleteObject(pen);
+            }
+        }
+    });
+}
+
+Image Toast(int size) {
+    return Gdi(size, size, RGB(255, 0, 255), [size](HDC dc) {
+        int m = size / 10;
+        {
+            GdiPen p(dc, RGB(110, 60, 20), RGB(170, 110, 50), 2);   // crust
+            POINT slice[] = { { m, size / 3 }, { m + size / 8, m }, { size / 2, m + size / 12 }, { size - m - size / 8, m },
+                              { size - m, size / 3 }, { size - m, size - m }, { m, size - m } };
+            Polygon(dc, slice, 7);
+        }
+        {
+            GdiPen p(dc, RGB(220, 180, 110), RGB(235, 200, 130), 1);   // soft centre
+            POINT inner[] = { { m * 2, size * 2 / 5 }, { m * 2 + size / 10, m * 2 }, { size / 2, m * 2 + size / 16 }, { size - m * 2 - size / 10, m * 2 },
+                              { size - m * 2, size * 2 / 5 }, { size - m * 2, size - m * 2 }, { m * 2, size - m * 2 } };
+            Polygon(dc, inner, 7);
+        }
+    });
+}
+
 Image LogoText(const std::wstring& text, int w, int h, COLORREF fg, COLORREF bg) {
     return Gdi(w, h, bg, [&](HDC dc) {
         HFONT font = CreateFontW(-h / 2, 0, 0, 0, FW_BOLD, TRUE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,

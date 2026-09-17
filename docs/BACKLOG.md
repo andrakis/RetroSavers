@@ -27,7 +27,7 @@ Built once; listed in the order Tier 1 needs them. Tier 1 needs C1, C2, C3, C9, 
 | C3 | `Core\Gfx\TrailBuffer` + `Feedback_ps.hlsl`, `PostProcess::Fill` | Mystify's persistent target made reusable, on fp16 (8-bit fade never reaches black). `Begin(fade, zoom, blur)` fades in place or ping-pongs through a feedback PS; `Present()` copies to the swap chain. | Fireworks, Flurry, Ribbons, Energy, Warp, Lorenz | [x] |
 | C9 | `DialogUtil`: `PickFont`, `PickImageFile`, `PickFolder`; `Host\FontSettings.h` (`LOGFONTW` ↔ registry) | | Marquee, 3D Text, DVD, Flying Windows, Photos | [x] |
 | C7 | `Core\Gfx\ImageLoader` (WIC → `Image`, EXIF rotate, downscale) + `CoInitializeEx` on the render thread | Falls back to `BmpReader`. Decode off-thread for Photos; upload on the render thread only. | DVD / Flying Windows image override, Photos, Flag, 3D Text texture | [x] |
-| C10 | `TextureFactory`: `Emblem` (generic wavy four-pane flag), `SoftDot` (radial alpha), `Checker(w,h,cellsX,cellsY,a,b)`, `DiscLogo`; later `Toaster`/`Toast` sprites and `Primitives::Gear` | | Flying Windows, DVD, Boing, Fireworks/Flurry, Toasters, glxgears | [x] (Toaster/Toast pending) |
+| C10 | `TextureFactory`: `Emblem` (generic wavy four-pane flag), `SoftDot` (radial alpha), `Checker(w,h,cellsX,cellsY,a,b)`, `DiscLogo`; later `Toaster`/`Toast` sprites and `Primitives::Gear` | | Flying Windows, DVD, Boing, Fireworks/Flurry, Toasters, glxgears | [x] |
 | C11 | `States`: `PremultipliedAlpha()`, `PointWrap()` | Trivial. | AA text, Bubbles, Life | [x] |
 | C4 | `LineRenderer2D`: `Triangle`/`Quad`/`Strip` as a second `TRIANGLELIST` batch | | Ribbons, Energy, Starry Night, Boing grid/shadow | [x] |
 | C5 | `Mesh::CreateDynamic` + `Mesh::Update(MeshData)` | `DYNAMIC`, `WRITE_DISCARD`. | Flying Objects, CPU FlowerBox | [x] |
@@ -144,7 +144,7 @@ Each entry: what it renders · algorithm · Core reuse · settings. Effort S/M/L
 - [x] **Energy** (M) — *Windows Energy (Vista).* 60–120 streamers `y = A·sin(kx+φ+ωt) + fbm` as
   thin strips (**C4**), additive into **C3**, half-res bloom; blue→cyan→white palette.
   Settings: Streamers, Amplitude, Speed, Tint, Bloom.
-- [ ] **AfterDark** (S–M) — one saver, Mode combo, to save boilerplate: *Starry Night* (twinkling
+- [x] **AfterDark** (S–M) — one saver, Mode combo, to save boilerplate: *Starry Night* (twinkling
   stars + random skyline with windows lighting up), *Warp* (Starfield with streaks through **C3**),
   *Rain* (drops + expanding rings; over the captured desktop a fullscreen PS refracts by ≤32 rings),
   *Toasters homage* (generic winged appliance sprite sheet + toast, top-right → bottom-left,

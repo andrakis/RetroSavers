@@ -50,6 +50,12 @@ Image SoftDot(int size = 64, float hardness = 0.0f);
 // Generic "disc logo": bold italic text above a flattened disc ring, white on transparent.
 Image DiscLogo(const std::wstring& text = L"RETRO", int w = 512, int h = 256);
 
+// Winged kitchen appliance sprite sheet: `frames` wing positions side by side, each frameW x frameH,
+// facing left (flying towards bottom-left). Transparent background.
+Image Toaster(int frameW = 128, int frameH = 112, int frames = 4);
+// A slice of toast, transparent background.
+Image Toast(int size = 64);
+
 // Value noise in [0,1] (deterministic).
 float ValueNoise(float x, float y, uint32_t seed);
 float Fbm(float x, float y, uint32_t seed, int octaves = 4);
