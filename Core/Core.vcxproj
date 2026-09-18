@@ -98,6 +98,7 @@
       <ShaderType>Pixel</ShaderType>
     </FxCompile>
     <None Include="Shaders\Common.hlsli" />
+    <None Include="Shaders\Lighting.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

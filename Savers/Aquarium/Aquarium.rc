@@ -1,0 +1,87 @@
+#include <windows.h>
+#include <commctrl.h>
+#include <scrnsave.h>
+#include "resource.h"
+
+// IDS_DESCRIPTION (1): the name shown in the Screen Saver Settings dropdown.
+STRINGTABLE
+BEGIN
+    IDS_DESCRIPTION "Aquarium"
+END
+
+ID_APP ICON "..\\..\\assets\\RetroSavers.ico"
+
+DLG_SCRNSAVECONFIGURE DIALOGEX 0, 0, 300, 246
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Aquarium Settings"
+FONT 9, "Segoe UI", 400, 0, 0x1
+BEGIN
+    LTEXT           "&Fish:", -1, 12, 12, 40, 10
+    CONTROL         "", IDC_FISH, TRACKBAR_CLASS, TBS_AUTOTICKS | WS_TABSTOP, 54, 8, 200, 18
+    LTEXT           "14", IDC_FISH_LABEL, 260, 12, 30, 10
+
+    GROUPBOX        "Species", -1, 8, 30, 284, 56
+    AUTOCHECKBOX    "Clownfish", IDC_SPECIES0, 16, 42, 62, 10
+    AUTOCHECKBOX    "Blue tang", IDC_SPECIES1, 16, 56, 62, 10
+    AUTOCHECKBOX    "Yellow tang", IDC_SPECIES2, 16, 70, 62, 10
+    AUTOCHECKBOX    "Angelfish", IDC_SPECIES3, 84, 42, 62, 10
+    AUTOCHECKBOX    "Neon tetra", IDC_SPECIES4, 84, 56, 62, 10
+    AUTOCHECKBOX    "Guppy", IDC_SPECIES5, 84, 70, 62, 10
+    AUTOCHECKBOX    "Goldfish", IDC_SPECIES6, 152, 42, 62, 10
+    AUTOCHECKBOX    "Pleco", IDC_SPECIES7, 152, 56, 62, 10
+    PUSHBUTTON      "&All", IDC_SPECIES_ALL, 232, 42, 50, 14
+    PUSHBUTTON      "&None", IDC_SPECIES_NONE, 232, 60, 50, 14
+
+    LTEXT           "&Plants:", -1, 12, 98, 40, 10
+    CONTROL         "", IDC_PLANTS, TRACKBAR_CLASS, TBS_AUTOTICKS | WS_TABSTOP, 54, 94, 200, 18
+    LTEXT           "6", IDC_PLANTS_LABEL, 260, 98, 30, 10
+    LTEXT           "&Rocks:", -1, 12, 120, 40, 10
+    CONTROL         "", IDC_ROCKS, TRACKBAR_CLASS, TBS_AUTOTICKS | WS_TABSTOP, 54, 116, 200, 18
+    LTEXT           "5", IDC_ROCKS_LABEL, 260, 120, 30, 10
+    LTEXT           "&Caustics:", -1, 12, 142, 40, 10
+    CONTROL         "", IDC_CAUSTICS, TRACKBAR_CLASS, TBS_AUTOTICKS | WS_TABSTOP, 54, 138, 200, 18
+    LTEXT           "6", IDC_CAUSTICS_LABEL, 260, 142, 30, 10
+    LTEXT           "&Speed:", -1, 12, 164, 40, 10
+    CONTROL         "", IDC_SPEED, TRACKBAR_CLASS, TBS_AUTOTICKS | WS_TABSTOP, 54, 160, 200, 18
+    LTEXT           "5", IDC_SPEED_LABEL, 260, 164, 30, 10
+
+    AUTOCHECKBOX    "&Bubbles", IDC_BUBBLES, 12, 186, 60, 10
+    AUTOCHECKBOX    "&Light shafts", IDC_SHAFTS, 76, 186, 60, 10
+    AUTOCHECKBOX    "&Ornament", IDC_ORNAMENT, 140, 186, 60, 10
+    LTEXT           "&Water tint:", -1, 12, 206, 44, 10
+    PUSHBUTTON      "Colour...", IDC_TINT, 58, 203, 50, 14
+    LTEXT           "", IDC_TINT_SWATCH, 112, 203, 24, 14, SS_SUNKEN
+    LTEXT           "&Quality:", -1, 160, 206, 36, 10
+    COMBOBOX        IDC_QUALITY, 200, 203, 80, 60, CBS_DROPDOWNLIST | WS_TABSTOP
+
+    PUSHBUTTON      "&Defaults", IDC_DEFAULTS, 12, 224, 50, 14
+    DEFPUSHBUTTON   "OK", IDOK, 186, 224, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 240, 224, 50, 14
+END
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "FileDescription", "Aquarium screen saver (RetroSavers)"
+            VALUE "FileVersion", "1.0.0.0"
+            VALUE "InternalName", "Aquarium.scr"
+            VALUE "OriginalFilename", "Aquarium.scr"
+            VALUE "ProductName", "RetroSavers"
+            VALUE "ProductVersion", "1.0.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

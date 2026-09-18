@@ -15,11 +15,14 @@ public:
     void BeginFrame(ID3D11DeviceContext* ctx, const Camera& camera);
     // Draws one sprite centred at `center` with the given world-space width/height.
     // Set `depthWrite` false for translucent sprites drawn after opaque geometry.
+    // `blend` defaults to AlphaBlend (Additive for glows); the depth test always stays on.
     void Draw(ID3D11DeviceContext* ctx, const Texture& texture, const DirectX::XMFLOAT3& center, float width, float height,
-              const DirectX::XMFLOAT4& color = { 1, 1, 1, 1 }, bool depthWrite = true, const DirectX::XMFLOAT4& uvRect = { 0, 0, 1, 1 });
-    // Same but with an explicit orientation (right/up vectors) instead of camera facing.
+              const DirectX::XMFLOAT4& color = { 1, 1, 1, 1 }, bool depthWrite = true, const DirectX::XMFLOAT4& uvRect = { 0, 0, 1, 1 },
+              ID3D11BlendState* blend = nullptr);
+    // Same but with an explicit orientation: `right` and `up` are the half-extent vectors.
     void DrawOriented(ID3D11DeviceContext* ctx, const Texture& texture, const DirectX::XMFLOAT3& center, const DirectX::XMFLOAT3& right,
-                      const DirectX::XMFLOAT3& up, const DirectX::XMFLOAT4& color = { 1, 1, 1, 1 }, bool depthWrite = true);
+                      const DirectX::XMFLOAT3& up, const DirectX::XMFLOAT4& color = { 1, 1, 1, 1 }, bool depthWrite = true,
+                      ID3D11BlendState* blend = nullptr);
 
 private:
     struct CB {

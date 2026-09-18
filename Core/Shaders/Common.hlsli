@@ -20,6 +20,7 @@ cbuffer PerObject : register(b1)
     float4x4 gWorld;
     float4 gColor;       // material base colour (rgba)
     float4 gMaterial;    // x = spec power, y = spec intensity, z = use texture, w = uv scale
+    float4 gLightMap;    // x > 0.5 enables the projected light map (t1), y = world XZ -> uv scale, z = strength
 };
 
 struct PhongPSIn

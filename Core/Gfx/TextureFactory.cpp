@@ -430,6 +430,27 @@ Image SoftDot(int size, float hardness) {
     return img;
 }
 
+Image BubbleRing(int size) {
+    Image img(size, size, 0);
+    float half = size * 0.5f;
+    for (int y = 0; y < size; ++y)
+        for (int x = 0; x < size; ++x) {
+            float dx = (x + 0.5f - half) / half, dy = (y + 0.5f - half) / half;
+            float r = std::sqrt(dx * dx + dy * dy);
+            if (r > 1.0f) continue;
+            float rim = Smoothstep(0.78f, 0.92f, r) * (1.0f - Smoothstep(0.95f, 1.0f, r));   // bright ring near the edge
+            float fill = 0.08f * (1.0f - r * r);                                             // faint body
+            float hx = dx + 0.38f, hy = dy + 0.38f;                                          // top-left highlight
+            float hl = Saturate(1.0f - std::sqrt(hx * hx + hy * hy) / 0.28f);
+            hl = hl * hl;
+            float hx2 = dx - 0.3f, hy2 = dy - 0.35f;                                         // small lower-right glint
+            float hl2 = Saturate(1.0f - std::sqrt(hx2 * hx2 + hy2 * hy2) / 0.14f);
+            float a = Saturate(0.85f * rim + fill + hl + 0.5f * hl2 * hl2);
+            img.At(x, y) = PackRgbaF(1.0f, 1.0f, 1.0f, a);
+        }
+    return img;
+}
+
 Image DiscLogo(const std::wstring& text, int w, int h) {
     return GdiMask(w, h, [&](HDC dc) {
         int textH = h * 58 / 100;

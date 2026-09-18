@@ -47,6 +47,10 @@ Image Emblem(int size = 256, const uint32_t* paneColors = nullptr);
 // Soft radial dot: RGB = A = smooth falloff from the centre (works with Additive and AlphaBlend).
 Image SoftDot(int size = 64, float hardness = 0.0f);
 
+// Air bubble seen against water: a thin bright rim, a faint fill and an off-centre highlight.
+// White with alpha, for AlphaBlend (tint via the sprite colour).
+Image BubbleRing(int size = 64);
+
 // Generic "disc logo": bold italic text above a flattened disc ring, white on transparent.
 Image DiscLogo(const std::wstring& text = L"RETRO", int w = 512, int h = 256);
 

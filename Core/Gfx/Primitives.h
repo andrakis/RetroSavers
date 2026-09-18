@@ -26,4 +26,9 @@ MeshData Grid(float w, float d, int divisionsX, int divisionsZ, float uvRepeat =
 // with a bore of `innerRadius`, `teeth` teeth of `toothDepth` around `outerRadius`. Flat shaded.
 MeshData Gear(float innerRadius, float outerRadius, float width, int teeth, float toothDepth);
 
+// Lumpy boulder: a sphere displaced along its normals by 3D value noise (`roughness` = fraction
+// of the radius), squashed to `squash` of its height and with the bottom flattened so it sits
+// on a floor at y = 0 (the top is at about y = radius * squash). Smooth normals.
+MeshData Rock(float radius, uint32_t seed, float roughness = 0.35f, float squash = 0.75f, int slices = 20, int stacks = 14);
+
 } // namespace rs::Primitives

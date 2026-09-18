@@ -31,7 +31,7 @@ Built once; listed in the order Tier 1 needs them. Tier 1 needs C1, C2, C3, C9, 
 | C11 | `States`: `PremultipliedAlpha()`, `PointWrap()` | Trivial. | AA text, Bubbles, Life | [x] |
 | C4 | `LineRenderer2D`: `Triangle`/`Quad`/`Strip` as a second `TRIANGLELIST` batch | | Ribbons, Energy, Starry Night, Boing grid/shadow | [x] |
 | C5 | `Mesh::CreateDynamic` + `Mesh::Update(MeshData)` | `DYNAMIC`, `WRITE_DISCARD`. | Flying Objects, CPU FlowerBox | [x] |
-| C6 | `Forward`: public `BindMaterial(ctx, material, world)` + `PixelShader()` getter | A saver can bind its own VS but reuse `PerFrame`/`PerObject` and `Phong_ps`. | FlowerBox morph VS | [ ] |
+| C6 | `Forward`: public `BindMaterial(ctx, material, world)` + `PixelShader()` getter | A saver can bind its own VS but reuse `PerFrame`/`PerObject` and `Phong_ps`. | FlowerBox morph VS | [x] |
 | C8 | `Core\Gfx\FontMesh` (DirectWrite outline → D2D `Tessellate` + `Simplify` → extruded `MeshData`) | See 3D Text. | 3D Text | [x] |
 
 ---
@@ -152,7 +152,16 @@ Each entry: what it renders · algorithm · Core reuse · settings. Effort S/M/L
 
 ---
 
-## Tier 4 — Aquarium (planned, not started)
+## Tier 4 — Aquarium
+
+- [x] **Aquarium** (XL) — shipped 2026-09-18 in one pass (sessions A–C below). Deviations from the
+  plan: **C14** skipped (one `Forward::Draw` per fish with a per-fish cbuffer at `b2`; 30 draws is
+  nothing); `FishMesh` lives in `Savers\Aquarium` rather than Core (nothing else wants it); kelp
+  is built in the saver on a **C5** dynamic mesh, so no `Primitives::Strip`; the back wall is not
+  geometry — `Water_ps` intersects each pixel's view ray with a wall plane (`z = 12`) so the
+  gradient runs by *world height* and the fogged floor meets it seamlessly; `Billboard::Draw` /
+  `DrawOriented` gained a blend-state parameter for the additive shafts. Fins are hard-edged
+  geometry (no alpha test needed); `Fish_ps` flips the normal via `SV_IsFrontFace`.
 
 A SereneScreen / After Dark "Fish!" style tank: a dozen procedurally built fish schooling and
 wandering in front of a sandy floor, rocks and swaying plants, with caustics, light shafts and
@@ -223,12 +232,12 @@ ornament, Quality (caustics resolution / fish tessellation).
 
 ### Core additions it needs
 
-| # | Addition | What |
-|---|---|---|
-| C6 | `Forward::Draw(ctx, mesh, world, material, ID3D11VertexShader*, ID3D11InputLayout*, ID3D11PixelShader*)` | Custom VS/PS while keeping `PerFrame`/`PerObject` and the white-texture / sampler binding. |
-| C13 | `Phong_ps` light-map slot (`t1`, `gMaterial` flag) | Multiplies diffuse by a projected texture (caustics) using world XZ → uv. |
-| C14 | `InstanceData::anim` + `PhongInstanced_vs` pass-through | Per-instance animation params for the instanced fish path. |
-| C15 | `Primitives::Rock`, `Primitives::Strip` (kelp), `TextureFactory::BubbleRing`, `FishMesh` | Geometry generators. |
+| # | Addition | What | Done |
+|---|---|---|---|
+| C6 | `Forward::Draw(ctx, mesh, world, material, ID3D11VertexShader*, ID3D11InputLayout*, ID3D11PixelShader*)` + public `BindMaterial`, `PixelShader()` / `VertexShader()` / `Layout()` getters | Custom VS/PS while keeping `PerFrame`/`PerObject` and the white-texture / sampler binding. | [x] |
+| C13 | `Phong_ps` light-map slot: `Material::lightMap/lightMapScale/lightMapStrength` → `PerObject.gLightMap`, sampled from `t1`/`s1` by `Lighting.hlsli` (`LightMapFactor`, `ShadePhong`, `ApplyFog` shared with saver shaders) | Multiplies diffuse by a projected texture (caustics) using world XZ → uv. | [x] |
+| C14 | `InstanceData::anim` + `PhongInstanced_vs` pass-through | Per-instance animation params for the instanced fish path. | skipped — one draw per fish |
+| C15 | `Primitives::Rock(radius, seed, roughness, squash)`, `TextureFactory::BubbleRing`; `FishMesh` and the kelp strip live in the saver | Geometry generators. | [x] |
 
 ### Build order
 
@@ -253,8 +262,8 @@ ornament, Quality (caustics resolution / fish tessellation).
 ## Framework facts that shape the designs
 
 - `Core\Saver.h`: one `Saver` per monitor; `ClearColor()` → `nullopt` means the saver owns clearing.
-- `Core\Gfx\Forward.h`: `SetMaterial` is private and the Phong VS is hard-bound in `Draw`, so a
-  custom vertex shader can't reuse the Phong cbuffers/PS until **C6**.
+- `Core\Gfx\Forward.h`: `Draw(..., vs, layout, ps)` (**C6**) runs a saver's own VS/PS on the Phong
+  cbuffers; `Lighting.hlsli` gives such a PS the same shading, light map and fog as `Phong_ps`.
 - `Core\Gfx\Mesh.cpp`: VB/IB are `IMMUTABLE` — no CPU-deformed geometry until **C5**.
 - `Core\Gfx\LineRenderer2D`: `LINELIST` only, 1-px aliased.
 - `Core\Gfx\RenderTexture`: fp16 default, no depth. `SwapChain`: `B8G8R8A8_UNORM`, no MSAA.

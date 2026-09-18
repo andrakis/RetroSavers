@@ -29,6 +29,7 @@
     <Project Path="Savers/FlyingObjects/FlyingObjects.vcxproj" />
     <Project Path="Savers/Energy/Energy.vcxproj" />
     <Project Path="Savers/AfterDark/AfterDark.vcxproj" />
+    <Project Path="Savers/Aquarium/Aquarium.vcxproj" />
   </Folder>
   <Folder Name="/Tools/">
     <Project Path="tools/PreviewHost/PreviewHost.vcxproj" />

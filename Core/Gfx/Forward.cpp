@@ -47,30 +47,40 @@ void Forward::BeginFrame(ID3D11DeviceContext* ctx, const FrameConstants& frame) 
     ctx->GSSetShader(nullptr, nullptr, 0);
 }
 
-void Forward::SetMaterial(ID3D11DeviceContext* ctx, const Material& m, const XMMATRIX& world) {
+void Forward::BindMaterial(ID3D11DeviceContext* ctx, const Material& m, const XMMATRIX& world) {
     ObjectConstants o{};
     XMStoreFloat4x4(&o.world, XMMatrixTranspose(world));
     o.color = m.color;
     o.material = { m.specPower, m.specIntensity, m.texture ? 1.0f : 0.0f, m.uvScale };
+    o.lightMap = { m.lightMap ? 1.0f : 0.0f, m.lightMapScale, m.lightMapStrength, 0.0f };
     m_objectCb.Update(ctx, o);
     const Texture* tex = m.texture ? m.texture : &m_white;
     tex->BindPS(ctx, 0);
     ID3D11SamplerState* s = m.sampler ? m.sampler : m_states.AnisoWrap();
     ctx->PSSetSamplers(0, 1, &s);
+    ID3D11ShaderResourceView* lm = m.lightMap ? m.lightMap : m_white.SRV();
+    ctx->PSSetShaderResources(1, 1, &lm);
+    ID3D11SamplerState* ls = m_states.LinearWrap();
+    ctx->PSSetSamplers(1, 1, &ls);
 }
 
 void Forward::Draw(ID3D11DeviceContext* ctx, const Mesh& mesh, const XMMATRIX& world, const Material& material) {
+    Draw(ctx, mesh, world, material, nullptr, nullptr, nullptr);
+}
+
+void Forward::Draw(ID3D11DeviceContext* ctx, const Mesh& mesh, const XMMATRIX& world, const Material& material,
+                   ID3D11VertexShader* vs, ID3D11InputLayout* layout, ID3D11PixelShader* ps) {
     if (!mesh.Valid()) return;
-    SetMaterial(ctx, material, world);
-    ctx->IASetInputLayout(m_layout.Get());
-    ctx->VSSetShader(m_vs.Get(), nullptr, 0);
-    ctx->PSSetShader(m_ps.Get(), nullptr, 0);
+    BindMaterial(ctx, material, world);
+    ctx->IASetInputLayout(layout ? layout : m_layout.Get());
+    ctx->VSSetShader(vs ? vs : m_vs.Get(), nullptr, 0);
+    ctx->PSSetShader(ps ? ps : m_ps.Get(), nullptr, 0);
     mesh.Draw(ctx);
 }
 
 void Forward::DrawInstanced(ID3D11DeviceContext* ctx, const Mesh& mesh, const DynamicVertexBuffer<InstanceData>& instances, const Material& material) {
     if (!mesh.Valid() || instances.Count() == 0) return;
-    SetMaterial(ctx, material, XMMatrixIdentity());
+    BindMaterial(ctx, material, XMMatrixIdentity());
     ctx->IASetInputLayout(m_layoutInstanced.Get());
     ctx->VSSetShader(m_vsInstanced.Get(), nullptr, 0);
     ctx->PSSetShader(m_ps.Get(), nullptr, 0);

@@ -26,6 +26,23 @@ void AddQuad(MeshData& m, uint32_t a, uint32_t b, uint32_t c, uint32_t d) {
     m.indices.insert(m.indices.end(), { a, b, c, a, c, d });
 }
 
+// 3D value noise for Rock (the 2D one lives in TextureFactory).
+float Hash3(int x, int y, int z, uint32_t seed) {
+    uint32_t h = static_cast<uint32_t>(x) * 0x8DA6B343u ^ static_cast<uint32_t>(y) * 0xD8163841u ^ static_cast<uint32_t>(z) * 0xCB1AB31Fu ^ seed * 0x9E3779B9u;
+    h ^= h >> 15; h *= 0x2C1B3C6Du; h ^= h >> 12; h *= 0x297A2D39u; h ^= h >> 15;
+    return (h & 0xFFFFFFu) / 16777215.0f;
+}
+
+float ValueNoise3(float x, float y, float z, uint32_t seed) {
+    int xi = static_cast<int>(std::floor(x)), yi = static_cast<int>(std::floor(y)), zi = static_cast<int>(std::floor(z));
+    float fx = x - xi, fy = y - yi, fz = z - zi;
+    fx = fx * fx * (3 - 2 * fx); fy = fy * fy * (3 - 2 * fy); fz = fz * fz * (3 - 2 * fz);
+    float c[8];
+    for (int i = 0; i < 8; ++i) c[i] = Hash3(xi + (i & 1), yi + ((i >> 1) & 1), zi + (i >> 2), seed);
+    float x0 = Lerp(c[0], c[1], fx), x1 = Lerp(c[2], c[3], fx), x2 = Lerp(c[4], c[5], fx), x3 = Lerp(c[6], c[7], fx);
+    return Lerp(Lerp(x0, x1, fy), Lerp(x2, x3, fy), fz);
+}
+
 } // namespace
 
 MeshData Sphere(float radius, int slices, int stacks) {
@@ -158,6 +175,36 @@ MeshData Grid(float w, float d, int divisionsX, int divisionsZ, float uvRepeat) 
             AddQuad(m, a, b, dd, c);
         }
     FixWinding(m);
+    return m;
+}
+
+MeshData Rock(float radius, uint32_t seed, float roughness, float squash, int slices, int stacks) {
+    MeshData m = Sphere(1.0f, slices, stacks);
+    // Displace along the normal by two octaves of noise, then squash and flatten the base.
+    for (auto& v : m.vertices) {
+        const XMFLOAT3& n = v.normal;
+        float f = ValueNoise3(n.x * 1.7f + 5.0f, n.y * 1.7f + 5.0f, n.z * 1.7f + 5.0f, seed) - 0.5f;
+        f += 0.5f * (ValueNoise3(n.x * 3.9f + 9.0f, n.y * 3.9f + 9.0f, n.z * 3.9f + 9.0f, seed + 31) - 0.5f);
+        float r = radius * (1.0f + roughness * 2.0f * f);
+        float y = n.y * r * squash;
+        if (y < -0.35f * radius * squash) y = -0.35f * radius * squash;
+        v.position = { n.x * r, y + 0.35f * radius * squash, n.z * r };
+    }
+    // Collapse the pole rows: every vertex on a pole shares one position.
+    const int cols = slices + 1;
+    for (int j = 1; j < cols; ++j) {
+        m.vertices[j].position = m.vertices[0].position;
+        m.vertices[stacks * cols + j].position = m.vertices[stacks * cols].position;
+    }
+    m.ComputeNormals();
+    // The seam column (u = 0 / u = 1) shares positions: average the normals so it doesn't show.
+    for (int i = 0; i <= stacks; ++i) {
+        VertexPNT& a = m.vertices[i * cols];
+        VertexPNT& b = m.vertices[i * cols + slices];
+        XMVECTOR n = XMVector3Normalize(XMVectorAdd(XMLoadFloat3(&a.normal), XMLoadFloat3(&b.normal)));
+        XMStoreFloat3(&a.normal, n);
+        XMStoreFloat3(&b.normal, n);
+    }
     return m;
 }
 

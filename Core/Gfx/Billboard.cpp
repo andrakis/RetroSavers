@@ -21,7 +21,7 @@ void Billboard::BeginFrame(ID3D11DeviceContext*, const Camera& camera) {
 }
 
 void Billboard::Draw(ID3D11DeviceContext* ctx, const Texture& texture, const XMFLOAT3& center, float width, float height,
-                     const XMFLOAT4& color, bool depthWrite, const XMFLOAT4& uvRect) {
+                     const XMFLOAT4& color, bool depthWrite, const XMFLOAT4& uvRect, ID3D11BlendState* blend) {
     XMFLOAT3 right{ m_camRight.x * width * 0.5f, m_camRight.y * width * 0.5f, m_camRight.z * width * 0.5f };
     XMFLOAT3 up{ m_camUp.x * height * 0.5f, m_camUp.y * height * 0.5f, m_camUp.z * height * 0.5f };
     CB cb{};
@@ -36,7 +36,7 @@ void Billboard::Draw(ID3D11DeviceContext* ctx, const Texture& texture, const XMF
 
     ctx->RSSetState(m_states.CullNone());
     ctx->OMSetDepthStencilState(depthWrite ? m_states.DepthDefault() : m_states.DepthReadOnly(), 0);
-    ctx->OMSetBlendState(m_states.AlphaBlend(), nullptr, 0xFFFFFFFF);
+    ctx->OMSetBlendState(blend ? blend : m_states.AlphaBlend(), nullptr, 0xFFFFFFFF);
     ctx->IASetInputLayout(nullptr);
     ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
     ID3D11Buffer* none = nullptr;
@@ -52,11 +52,11 @@ void Billboard::Draw(ID3D11DeviceContext* ctx, const Texture& texture, const XMF
 }
 
 void Billboard::DrawOriented(ID3D11DeviceContext* ctx, const Texture& texture, const XMFLOAT3& center, const XMFLOAT3& right,
-                             const XMFLOAT3& up, const XMFLOAT4& color, bool depthWrite) {
+                             const XMFLOAT3& up, const XMFLOAT4& color, bool depthWrite, ID3D11BlendState* blend) {
     XMFLOAT3 savedRight = m_camRight, savedUp = m_camUp;
     m_camRight = right;
     m_camUp = up;
-    Draw(ctx, texture, center, 2.0f, 2.0f, color, depthWrite);
+    Draw(ctx, texture, center, 2.0f, 2.0f, color, depthWrite, { 0, 0, 1, 1 }, blend);
     m_camRight = savedRight;
     m_camUp = savedUp;
 }
