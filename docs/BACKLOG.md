@@ -259,6 +259,43 @@ ornament, Quality (caustics resolution / fish tessellation).
 
 ---
 
+## Tier 5 — Celestials
+
+- [x] **Celestials** (L) — shipped 2026-09-27. *Strange stellar objects, one at a time.* The camera slowly orbits one
+  object for a configurable time (default 20 s), then warp-jumps (or fades) to a different enabled
+  type. Ten checkboxes: black hole, boson star, white hole, Thorne-Zytkow object, strange star,
+  cold (rogue) neutron star, and four normal classes (red dwarf, sun-like, blue giant, red giant).
+
+Design:
+
+- **One fullscreen pixel shader per object family** into an fp16 scene target (render scale from
+  a Quality setting), all sharing `Celestial.hlsli`: camera rays, value noise / fbm / 3D Voronoi,
+  and a procedural sky (three hashed star layers on the unit sphere + Milky Way band + nebula
+  wisps). Because the sky is a function of direction, any bent ray can be looked up — that is
+  what makes lensing cheap.
+- **Lensing** is a per-pixel geodesic march with the Schwarzschild photon trick
+  (`a = -1.5 rs h^2 x / r^5`, `h = |x x v|`). Black hole: horizon + thin Keplerian disk with
+  Doppler beaming and gravitational redshift (disk optional). Boson star: the same march with a
+  soft enclosed mass `m(r) = r^3 / (r^3 + a^3)` (no horizon, rays pass through) plus a desaturating
+  "anti-light" halo. Cold neutron star and strange star: weak `rs` and a hard surface.
+- **Non-lensing objects** (normal stars, TZO, white hole) intersect spheres / planes analytically:
+  Stargazer v1's domain-warped fbm photosphere, granulation, spots, limb darkening, streamer corona;
+  TZO envelope that thins to show a blazing core; white hole core, outward-flowing log-spiral disk
+  and expanding shock shells.
+- **Particles** are CPU-simulated in 3D, projected on the CPU and drawn with `SpriteBatch2D`
+  (additive `SoftDot`, stretched along screen velocity for streaks) into the scene target;
+  a CPU ray/sphere test hides particles behind the object. Flares, CMEs, prominence loops, stellar
+  wind, TZO eruptions, boson dust on bent orbits, strange-star needle jets, white-hole outflow,
+  neutron-star ash.
+- **Post:** threshold downsample -> half-res and 1/8-res Gaussian bloom -> composite with ACES,
+  chromatic aberration (strange star), radial warp blur, fade, dither. White hole is blinding but
+  capped by the tone curve; "Reduce glare" lowers exposure and bloom. No strobing.
+- Settings: 10 object checkboxes, seconds per object (5-120), orbit speed, accretion disk,
+  warp jump (off = fade through black), reduce glare, quality (50 / 75 / 100 % render scale and
+  march steps).
+
+---
+
 ## Framework facts that shape the designs
 
 - `Core\Saver.h`: one `Saver` per monitor; `ClearColor()` → `nullopt` means the saver owns clearing.

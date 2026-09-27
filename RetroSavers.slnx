@@ -30,6 +30,7 @@
     <Project Path="Savers/Energy/Energy.vcxproj" />
     <Project Path="Savers/AfterDark/AfterDark.vcxproj" />
     <Project Path="Savers/Aquarium/Aquarium.vcxproj" />
+    <Project Path="Savers/Celestials/Celestials.vcxproj" />
   </Folder>
   <Folder Name="/Tools/">
     <Project Path="tools/PreviewHost/PreviewHost.vcxproj" />

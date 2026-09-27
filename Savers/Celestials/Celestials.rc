@@ -1,0 +1,76 @@
+#pragma code_page(65001)
+#include <windows.h>
+#include <commctrl.h>
+#include <scrnsave.h>
+#include "resource.h"
+
+// IDS_DESCRIPTION (1): the name shown in the Screen Saver Settings dropdown.
+STRINGTABLE
+BEGIN
+    IDS_DESCRIPTION "Celestials"
+END
+
+ID_APP ICON "..\\..\\assets\\RetroSavers.ico"
+
+DLG_SCRNSAVECONFIGURE DIALOGEX 0, 0, 280, 226
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Celestials Settings"
+FONT 9, "Segoe UI", 400, 0, 0x1
+BEGIN
+    GROUPBOX        "Objects", -1, 8, 6, 264, 88
+    AUTOCHECKBOX    "&Black hole", IDC_OBJ_BLACKHOLE, 16, 20, 120, 10
+    AUTOCHECKBOX    "Bo&son star", IDC_OBJ_BOSON, 16, 34, 120, 10
+    AUTOCHECKBOX    "W&hite hole", IDC_OBJ_WHITEHOLE, 16, 48, 120, 10
+    AUTOCHECKBOX    "&Thorne–Żytkow object", IDC_OBJ_TZO, 16, 62, 120, 10
+    AUTOCHECKBOX    "St&range star", IDC_OBJ_STRANGE, 16, 76, 120, 10
+    AUTOCHECKBOX    "&Cold neutron star", IDC_OBJ_EMBER, 146, 20, 120, 10
+    AUTOCHECKBOX    "Red dwar&f", IDC_OBJ_REDDWARF, 146, 34, 120, 10
+    AUTOCHECKBOX    "S&un-like star", IDC_OBJ_SUNLIKE, 146, 48, 120, 10
+    AUTOCHECKBOX    "B&lue giant", IDC_OBJ_BLUEGIANT, 146, 62, 120, 10
+    AUTOCHECKBOX    "Red &giant", IDC_OBJ_REDGIANT, 146, 76, 120, 10
+
+    LTEXT           "Time per &object:", -1, 12, 104, 70, 10
+    CONTROL         "", IDC_SECONDS, TRACKBAR_CLASS, TBS_AUTOTICKS | WS_TABSTOP, 84, 100, 150, 18
+    LTEXT           "20 s", IDC_SECONDS_LABEL, 238, 104, 34, 10
+    LTEXT           "Orbit s&peed:", -1, 12, 128, 70, 10
+    CONTROL         "", IDC_ORBIT, TRACKBAR_CLASS, TBS_AUTOTICKS | WS_TABSTOP, 84, 124, 150, 18
+    LTEXT           "5", IDC_ORBIT_LABEL, 238, 128, 34, 10
+
+    AUTOCHECKBOX    "Black hole accretion &disk", IDC_DISK, 12, 150, 130, 10
+    AUTOCHECKBOX    "&Warp jump between objects", IDC_WARP, 12, 164, 130, 10
+    AUTOCHECKBOX    "Reduce gl&are (white hole)", IDC_GLARE, 146, 150, 126, 10
+
+    LTEXT           "&Quality:", -1, 12, 184, 70, 10
+    COMBOBOX        IDC_QUALITY, 84, 182, 120, 60, CBS_DROPDOWNLIST | WS_TABSTOP
+
+    PUSHBUTTON      "D&efaults", IDC_DEFAULTS, 12, 204, 50, 14
+    DEFPUSHBUTTON   "OK", IDOK, 166, 204, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 220, 204, 50, 14
+END
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "FileDescription", "Celestials screen saver (RetroSavers)"
+            VALUE "FileVersion", "1.0.0.0"
+            VALUE "InternalName", "Celestials.scr"
+            VALUE "OriginalFilename", "Celestials.scr"
+            VALUE "ProductName", "RetroSavers"
+            VALUE "ProductVersion", "1.0.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
