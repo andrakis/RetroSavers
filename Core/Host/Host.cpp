@@ -30,6 +30,7 @@ struct HostState {
     HWND parent = nullptr;     // preview mode: the window that hosts us
     DWORD mainThread = 0;
     bool preview = false;
+    bool clickToExit = false;  // RETROSAVERS_CLICK_TO_EXIT=1 (PreviewHost): mouse moves do not end /s
     std::wstring name;
     SaverFactory factory;
     std::vector<MonitorInfo> monitors;
@@ -162,6 +163,10 @@ LRESULT Host::Proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, const wcha
     case WM_CREATE: {
         g_state.hwnd = hwnd;
         g_state.preview = fChildPreview != FALSE;
+        {
+            wchar_t buf[8]{};
+            g_state.clickToExit = !g_state.preview && GetEnvironmentVariableW(L"RETROSAVERS_CLICK_TO_EXIT", buf, 8) > 0 && buf[0] == L'1';
+        }
         g_state.parent = g_state.preview ? GetParent(hwnd) : nullptr;
         g_state.mainThread = GetCurrentThreadId();
         g_state.name = saverName;
@@ -172,6 +177,10 @@ LRESULT Host::Proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, const wcha
         g_state.thread = std::thread([] { RenderLoop(g_state); });
         return DefScreenSaverProc(hwnd, msg, wParam, lParam);
     }
+    case WM_MOUSEMOVE:
+        // A stray nudge of the mouse should not end a dev-launched fullscreen run; a click or key still does.
+        if (g_state.clickToExit) return 0;
+        return DefScreenSaverProc(hwnd, msg, wParam, lParam);
     case WM_ERASEBKGND:
         return 1;
     case WM_PAINT: {

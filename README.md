@@ -64,7 +64,8 @@ Any `.scr` can also be right-clicked in Explorer → **Install**.
 
 `bin\x64-Debug\PreviewHost.exe <path\to\Saver.scr>` hosts a saver in a resizable window using the
 same `/p <hwnd>` protocol as the Windows preview. Buttons run the config dialog (`/c:<hwnd>`),
-restart the preview, or launch fullscreen (`/s`). F5 restarts.
+restart the preview, or launch fullscreen (`/s`). F5 restarts. A fullscreen run started from PreviewHost ignores
+mouse movement (it sets `RETROSAVERS_CLICK_TO_EXIT=1`); click or press a key to leave it.
 
 Command line switches (standard for screen savers):
 

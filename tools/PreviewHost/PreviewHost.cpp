@@ -4,7 +4,8 @@
 //
 // Hosts "<saver> /p <hwnd>" inside a resizable window (the same protocol the Windows
 // Screen Saver Settings preview uses), so a saver can be developed without going
-// fullscreen. Buttons: Configure (runs "/c:<hwnd>"), Restart, Open.
+// fullscreen. Buttons: Configure (runs "/c:<hwnd>"), Restart, Open, Fullscreen ("/s", which
+// here ignores mouse movement: click or press a key to leave).
 #include <windows.h>
 #include <commctrl.h>
 #include <commdlg.h>
@@ -171,7 +172,10 @@ LRESULT CALLBACK MainProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             OpenSaver();
             return 0;
         case IDC_FULLSCREEN:
+            // Inherited by the child: only a click or a key ends this fullscreen run, not a mouse move.
+            SetEnvironmentVariableW(L"RETROSAVERS_CLICK_TO_EXIT", L"1");
             Launch(L"/s", nullptr);
+            SetEnvironmentVariableW(L"RETROSAVERS_CLICK_TO_EXIT", nullptr);
             return 0;
         }
         return 0;
