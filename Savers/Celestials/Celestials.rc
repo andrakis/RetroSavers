@@ -12,41 +12,60 @@ END
 
 ID_APP ICON "..\\..\\assets\\RetroSavers.ico"
 
-DLG_SCRNSAVECONFIGURE DIALOGEX 0, 0, 280, 226
+DLG_SCRNSAVECONFIGURE DIALOGEX 0, 0, 300, 344
 STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Celestials Settings"
 FONT 9, "Segoe UI", 400, 0, 0x1
 BEGIN
-    GROUPBOX        "Objects", -1, 8, 6, 264, 88
-    AUTOCHECKBOX    "&Black hole", IDC_OBJ_BLACKHOLE, 16, 20, 120, 10
-    AUTOCHECKBOX    "Bo&son star", IDC_OBJ_BOSON, 16, 34, 120, 10
-    AUTOCHECKBOX    "W&hite hole", IDC_OBJ_WHITEHOLE, 16, 48, 120, 10
-    AUTOCHECKBOX    "&Thorne–Żytkow object", IDC_OBJ_TZO, 16, 62, 120, 10
-    AUTOCHECKBOX    "St&range star", IDC_OBJ_STRANGE, 16, 76, 120, 10
-    AUTOCHECKBOX    "&Cold neutron star", IDC_OBJ_EMBER, 146, 20, 120, 10
-    AUTOCHECKBOX    "Red dwar&f", IDC_OBJ_REDDWARF, 146, 34, 120, 10
-    AUTOCHECKBOX    "S&un-like star", IDC_OBJ_SUNLIKE, 146, 48, 120, 10
-    AUTOCHECKBOX    "B&lue giant", IDC_OBJ_BLUEGIANT, 146, 62, 120, 10
-    AUTOCHECKBOX    "Red &giant", IDC_OBJ_REDGIANT, 146, 76, 120, 10
+    GROUPBOX        "Exotic", -1, 8, 6, 140, 108
+    AUTOCHECKBOX    "&Black hole", IDC_OBJ_BLACKHOLE, 16, 18, 132, 10
+    AUTOCHECKBOX    "Bo&son star", IDC_OBJ_BOSON, 16, 32, 132, 10
+    AUTOCHECKBOX    "W&hite hole", IDC_OBJ_WHITEHOLE, 16, 46, 132, 10
+    AUTOCHECKBOX    "&Thorne–Żytkow object", IDC_OBJ_TZO, 16, 60, 132, 10
+    AUTOCHECKBOX    "St&range star", IDC_OBJ_STRANGE, 16, 74, 132, 10
+    AUTOCHECKBOX    "&Cold neutron star", IDC_OBJ_EMBER, 16, 88, 132, 10
+    AUTOCHECKBOX    "Pulsar", IDC_OBJ_PULSAR, 16, 102, 132, 10
+    GROUPBOX        "Stars and more", -1, 152, 6, 140, 108
+    AUTOCHECKBOX    "Red dwar&f", IDC_OBJ_REDDWARF, 160, 18, 132, 10
+    AUTOCHECKBOX    "S&un-like star", IDC_OBJ_SUNLIKE, 160, 32, 132, 10
+    AUTOCHECKBOX    "B&lue giant", IDC_OBJ_BLUEGIANT, 160, 46, 132, 10
+    AUTOCHECKBOX    "Red &giant", IDC_OBJ_REDGIANT, 160, 60, 132, 10
+    AUTOCHECKBOX    "Mass-transfer binary", IDC_OBJ_BINARY, 160, 74, 132, 10
+    AUTOCHECKBOX    "Planetary nebula", IDC_OBJ_NEBULA, 160, 88, 132, 10
+    AUTOCHECKBOX    "Comet", IDC_OBJ_COMET, 160, 102, 132, 10
+    GROUPBOX        "Planets", -1, 8, 118, 140, 94
+    AUTOCHECKBOX    "Gas giant", IDC_OBJ_GASGIANT, 16, 130, 132, 10
+    AUTOCHECKBOX    "Ringed giant", IDC_OBJ_RINGEDGIANT, 16, 144, 132, 10
+    AUTOCHECKBOX    "Ice giant", IDC_OBJ_ICEGIANT, 16, 158, 132, 10
+    AUTOCHECKBOX    "Hot Jupiter", IDC_OBJ_HOTJUPITER, 16, 172, 132, 10
+    AUTOCHECKBOX    "Earth-like world", IDC_OBJ_EARTHLIKE, 16, 186, 132, 10
+    AUTOCHECKBOX    "Lava world", IDC_OBJ_LAVAWORLD, 16, 200, 132, 10
+    GROUPBOX        "Moons", -1, 152, 118, 140, 94
+    AUTOCHECKBOX    "Cratered moon", IDC_OBJ_CRATEREDMOON, 160, 130, 132, 10
+    AUTOCHECKBOX    "Icy moon", IDC_OBJ_ICYMOON, 160, 144, 132, 10
+    AUTOCHECKBOX    "Volcanic moon", IDC_OBJ_VOLCANICMOON, 160, 158, 132, 10
+    AUTOCHECKBOX    "Hazy moon", IDC_OBJ_HAZYMOON, 160, 172, 132, 10
+    PUSHBUTTON      "Select all", IDC_ALL, 160, 190, 60, 14
+    PUSHBUTTON      "Select none", IDC_NONE, 224, 190, 60, 14
 
-    LTEXT           "Time per &object:", -1, 12, 104, 70, 10
-    CONTROL         "", IDC_SECONDS, TRACKBAR_CLASS, TBS_AUTOTICKS | WS_TABSTOP, 84, 100, 150, 18
-    LTEXT           "20 s", IDC_SECONDS_LABEL, 238, 104, 34, 10
-    LTEXT           "Orbit s&peed:", -1, 12, 128, 70, 10
-    CONTROL         "", IDC_ORBIT, TRACKBAR_CLASS, TBS_AUTOTICKS | WS_TABSTOP, 84, 124, 150, 18
-    LTEXT           "5", IDC_ORBIT_LABEL, 238, 128, 34, 10
+    LTEXT           "Time per &object:", -1, 12, 222, 70, 10
+    CONTROL         "", IDC_SECONDS, TRACKBAR_CLASS, TBS_AUTOTICKS | WS_TABSTOP, 84, 218, 170, 18
+    LTEXT           "20 s", IDC_SECONDS_LABEL, 258, 222, 34, 10
+    LTEXT           "Orbit s&peed:", -1, 12, 246, 70, 10
+    CONTROL         "", IDC_ORBIT, TRACKBAR_CLASS, TBS_AUTOTICKS | WS_TABSTOP, 84, 242, 170, 18
+    LTEXT           "5", IDC_ORBIT_LABEL, 258, 246, 34, 10
 
-    AUTOCHECKBOX    "Black hole accretion &disk", IDC_DISK, 12, 150, 130, 10
-    AUTOCHECKBOX    "&Warp jump between objects", IDC_WARP, 12, 164, 130, 10
-    AUTOCHECKBOX    "Reduce gl&are (white hole)", IDC_GLARE, 146, 150, 126, 10
-    AUTOCHECKBOX    "Show object &info", IDC_INFO, 146, 164, 126, 10
+    AUTOCHECKBOX    "Black hole accretion &disk", IDC_DISK, 12, 268, 136, 10
+    AUTOCHECKBOX    "&Warp jump between objects", IDC_WARP, 12, 282, 136, 10
+    AUTOCHECKBOX    "Reduce gl&are (white hole)", IDC_GLARE, 156, 268, 136, 10
+    AUTOCHECKBOX    "Show object &info", IDC_INFO, 156, 282, 136, 10
 
-    LTEXT           "&Quality:", -1, 12, 184, 70, 10
-    COMBOBOX        IDC_QUALITY, 84, 182, 120, 60, CBS_DROPDOWNLIST | WS_TABSTOP
+    LTEXT           "&Quality:", -1, 12, 302, 70, 10
+    COMBOBOX        IDC_QUALITY, 84, 300, 120, 60, CBS_DROPDOWNLIST | WS_TABSTOP
 
-    PUSHBUTTON      "D&efaults", IDC_DEFAULTS, 12, 204, 50, 14
-    DEFPUSHBUTTON   "OK", IDOK, 166, 204, 50, 14
-    PUSHBUTTON      "Cancel", IDCANCEL, 220, 204, 50, 14
+    PUSHBUTTON      "D&efaults", IDC_DEFAULTS, 12, 322, 50, 14
+    DEFPUSHBUTTON   "OK", IDOK, 186, 322, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 240, 322, 50, 14
 END
 
 VS_VERSION_INFO VERSIONINFO

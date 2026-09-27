@@ -12,10 +12,12 @@ cbuffer Scene : register(b0)
     float4 gCamUp;     // xyz, w = tan(fovY / 2)
     float4 gCamFwd;    // xyz, w = radians per pixel
     float4 gAxis;      // xyz spin / jet axis (unit), w = seed
-    float4 gP0, gP1, gP2, gP3;   // per-object parameters (see each shader)
-    float4 gC0, gC1, gC2, gC3;   // per-object colours
+    float4 gP0, gP1, gP2, gP3, gP4, gP5;   // per-object parameters (see each shader)
+    float4 gC0, gC1, gC2, gC3, gC4, gC5;   // per-object colours
     float4 gSky;       // rgb nebula tint, w = sky brightness
     float4 gMisc;      // x = max march steps, y = accretion disk on, z = unused, w = spin angle (radians)
+    float4 gSun;       // planets: xyz unit direction towards their star, w = its angular radius (0 = none)
+    float4 gSunColor;  // rgb light colour (x intensity), w = disk brightness
 };
 
 struct PSIn
@@ -246,5 +248,108 @@ float JetGlow(float3 ro, float3 rd, float3 axis, float len, float width, float t
     if (tHit > 0.0 && t > tHit) I = 0.0;
     return I;
 }
+
+// ---- planets: a star to light them ----
+
+float SphereHitAt(float3 ro, float3 rd, float3 c, float radius) { return SphereHit(ro - c, rd, radius); }
+
+// The star in the sky: disk, corona glow and a wide faint halo.
+float3 StarDisk(float3 rd)
+{
+    float3 col = 0.0;
+    if (gSun.w > 0.0)
+    {
+        float ang = acos(clamp(dot(rd, gSun.xyz), -1.0, 1.0));
+        float disk = 1.0 - smoothstep(gSun.w * 0.94, gSun.w, ang);
+        float glow = exp(-max(ang - gSun.w, 0.0) / (gSun.w * 0.3 + 0.006));
+        col = gSunColor.rgb * (disk * gSunColor.w + glow * 1.5 + exp(-ang * 5.0) * 0.06);
+    }
+    return col;
+}
+
+// Lambert with a softened terminator (atmospheres wrap light a little past 90 degrees).
+float Lit(float3 n, float wrap) { return saturate((dot(n, gSun.xyz) + wrap) / (1.0 + wrap)); }
+
+// Orthonormal frame around a planet's spin axis: x/z span the equator, y is the pole.
+float3 ToLocal(float3 p, float3 axis)
+{
+    float3 e1 = normalize(abs(axis.y) < 0.9 ? cross(axis, float3(0, 1, 0)) : cross(axis, float3(1, 0, 0)));
+    float3 e2 = cross(axis, e1);
+    return float3(dot(p, e1), dot(p, axis), dot(p, e2));
+}
+
+// Atmospheric limb glow for a ray that misses a sphere of radius R at c: b = closest approach.
+float3 Halo(float3 ro, float3 rd, float3 c, float R, float height, float3 tint)
+{
+    float3 oc = ro - c;
+    float tc = -dot(oc, rd);
+    float3 cp = oc + rd * max(tc, 0.0);
+    float b = length(cp);
+    float d = max(b - R, 0.0);
+    float lit = saturate(dot(normalize(cp), gSun.xyz) * 0.8 + 0.35);
+    float fwd = pow(saturate(dot(rd, gSun.xyz)), 6.0);   // back-lit rings glow
+    return tint * exp(-d / height) * (lit + 2.0 * fwd) * step(0.0, tc);
+}
+
+// A small moon on a circular orbit in the spin axis's equatorial plane.
+// m: x = radius (0 = none), y = orbit radius, z = angular speed, w = phase.
+float3 Orbit(float4 m)
+{
+    float a = m.w + Time() * m.z;
+    float3 ax = gAxis.xyz;
+    float3 e1 = normalize(abs(ax.y) < 0.9 ? cross(ax, float3(0, 1, 0)) : cross(ax, float3(1, 0, 0)));
+    float3 e2 = cross(ax, e1);
+    return (e1 * cos(a) + e2 * sin(a)) * m.y;
+}
+
+// 0 where the sphere (c, r) blocks the star as seen from pos, 1 in full light (soft penumbra).
+float SphereShadow(float3 pos, float3 c, float r)
+{
+    float3 v = c - pos;
+    float t = dot(v, gSun.xyz);
+    float d = length(v - gSun.xyz * t);
+    return t > 0.0 ? smoothstep(r * 0.8, r * 1.1, d) : 1.0;
+}
+
+// A plain grey moon ball lit by the star (used around planets).
+float3 MoonBall(float3 n, float seed)
+{
+    float3 p = n * 5.0 + seed;
+    float a = 0.28 + 0.3 * Fbm(p, 4) + 0.12 * Fbm(p * 4.0, 3);
+    return a * Lit(n, 0.0) * gSunColor.rgb;
+}
+
+float Ridge(float v) { return 1.0 - abs(v * 2.0 - 1.0); }
+
+// Crater field on a sphere point p: bowls with raised rims. Adds height and its gradient
+// (with respect to p * scale) so the caller can bend the normal and get crisp shadows.
+void Craters(float3 p, float scale, float seed, float coverage, inout float h, inout float3 grad)
+{
+    float3 q = p * scale;
+    float3 i = floor(q);
+    [unroll]
+    for (int z = -1; z <= 1; ++z)
+    [unroll]
+    for (int y = -1; y <= 1; ++y)
+    [unroll]
+    for (int x = -1; x <= 1; ++x)
+    {
+        float3 c = i + float3(x, y, z);
+        float3 hs = Hash33(c + seed);
+        float r = 0.16 + 0.3 * hs.y;
+        float3 v = q - (c + 0.25 + 0.5 * Hash33(c.yzx + seed + 3.1));
+        float lv = max(length(v), 1e-4);
+        float d = lv / r;
+        float on = step(1.0 - coverage, hs.z);
+        float rimE = exp(-Sq((d - 1.0) / 0.22));
+        float prof = (d < 1.0 ? (d * d - 1.0) * 0.55 : 0.0) + 0.22 * rimE;
+        float dprof = (d < 1.0 ? 1.1 * d : 0.0) - 0.22 * rimE * 2.0 * (d - 1.0) / (0.22 * 0.22);
+        h += on * prof * r;
+        grad += on * dprof * (v / lv);
+    }
+}
+
+// Tangent part of a gradient, applied as a bump to normal n.
+float3 Bump(float3 n, float3 grad, float k) { return normalize(n - k * (grad - n * dot(grad, n))); }
 
 #endif

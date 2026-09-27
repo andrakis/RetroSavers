@@ -12,13 +12,21 @@
 // Celestials: the camera slowly orbits one strange (or ordinary) stellar object, then
 // warp-jumps to another. Each object is a fullscreen pixel shader (lensing ones march photons
 // through curved space) with CPU particles drawn on top, bloom and a filmic tone curve.
-enum class Kind { BlackHole, Boson, WhiteHole, Tzo, Strange, Ember, RedDwarf, SunLike, BlueGiant, RedGiant, Count };
+// New kinds are appended so the registry keys of existing ones keep their meaning.
+enum class Kind {
+    BlackHole, Boson, WhiteHole, Tzo, Strange, Ember, RedDwarf, SunLike, BlueGiant, RedGiant,
+    GasGiant, RingedGiant, IceGiant, HotJupiter, EarthLike, LavaWorld,
+    CrateredMoon, IcyMoon, VolcanicMoon, HazyMoon,
+    Pulsar, PlanetaryNebula, MassTransfer, Comet,
+    Count
+};
 
 struct CelestialsSettings {
     static constexpr int kKinds = static_cast<int>(Kind::Count);
     enum Quality { Low = 0, Medium = 1, High = 2 };
 
-    bool enabled[kKinds] = { true, true, true, true, true, true, true, true, true, true };
+    bool enabled[kKinds] = { true, true, true, true, true, true, true, true, true, true, true, true,
+                             true, true, true, true, true, true, true, true, true, true, true, true };
     int seconds = 20;          // 5..120 per object
     int orbit = 5;             // 1..10
     bool disk = true;          // black hole accretion disk
@@ -46,9 +54,9 @@ public:
 private:
     struct SceneCB {
         DirectX::XMFLOAT4 camPos, camRight, camUp, camFwd, axis;
-        DirectX::XMFLOAT4 p[4];
-        DirectX::XMFLOAT4 c[4];
-        DirectX::XMFLOAT4 sky, misc;
+        DirectX::XMFLOAT4 p[6];
+        DirectX::XMFLOAT4 c[6];
+        DirectX::XMFLOAT4 sky, misc, sun, sunColor;
     };
     struct BrightCB { DirectX::XMFLOAT4 params; };
     struct CompositeCB { DirectX::XMFLOAT4 a, b; };
@@ -57,7 +65,14 @@ private:
     struct Visit {
         Kind kind = Kind::SunLike;
         int shader = 0;
-        DirectX::XMFLOAT4 p[4]{}, c[4]{};
+        DirectX::XMFLOAT4 p[6]{}, c[6]{};
+        V3 sunDir{ 0, 0, 0 };                 // planets: towards their star
+        float sunSize = 0;                    // its angular radius (0 = no star)
+        DirectX::XMFLOAT4 sunColor{ 1, 1, 1, 0 };
+        float orbitScale = 1;                 // camera orbit speed multiplier
+        float magIncl = 0.6f, magRate = 2.0f; // pulsar
+        float donorDist = 5, donorRate = 0.08f, donorPhase = 0;   // mass-transfer binary
+        V3 wind{ 0, 0, 0 };                   // acceleration on particles with a wind factor
         DirectX::XMFLOAT4 sky{};
         V3 axis{ 0, 1, 0 }, precess{ 0, 1, 0 };
         float seed = 0, camDist = 4, elevation = 0.2f, roll = 0, azimuth = 0, spinRate = 0.02f;
@@ -68,7 +83,7 @@ private:
 
     struct Particle {
         V3 pos, vel, col;
-        float size, grow, age, life, drag, pull, streak;
+        float size, grow, age, life, drag, pull, streak, wind;
     };
     struct Loop { V3 a, b, col; float height, age, life; };
     struct WarpStar { float angle, r, speed, bright; };
@@ -86,6 +101,8 @@ private:
     void BuildCard(rs::Device& device);
     void RenderCard(rs::Device& device);
     float CardAlpha() const;
+    V3 PulsarAxis() const;
+    V3 DonorPos() const;
     void RenderParticles(rs::Device& device, const V3& eye, const V3& fwd, const V3& up, const V3& right, float fovY);
     float RenderScale() const;
 
@@ -96,7 +113,7 @@ private:
     rs::PostProcess m_post;
     rs::SpriteBatch2D m_sprites;
     rs::Texture m_dot;
-    static constexpr int kShaders = 7;
+    static constexpr int kShaders = 15;
     rs::ComPtr<ID3D11PixelShader> m_objectPs[kShaders];
     rs::ComPtr<ID3D11PixelShader> m_brightPs, m_compositePs;
     rs::ConstantBuffer<SceneCB> m_sceneCb;

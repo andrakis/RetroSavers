@@ -11,6 +11,14 @@
 #include "Shaders/Strange_ps.h"
 #include "Shaders/Ember_ps.h"
 #include "Shaders/Star_ps.h"
+#include "Shaders/GasGiant_ps.h"
+#include "Shaders/Terra_ps.h"
+#include "Shaders/Lava_ps.h"
+#include "Shaders/Moon_ps.h"
+#include "Shaders/Pulsar_ps.h"
+#include "Shaders/Nebula_ps.h"
+#include "Shaders/Binary_ps.h"
+#include "Shaders/Comet_ps.h"
 #include "Shaders/BrightPass_ps.h"
 #include "Shaders/Composite_ps.h"
 #include <algorithm>
@@ -52,11 +60,15 @@ float SphereHit(V3 ro, V3 rd, float radius) {
     return disc < 0.0f ? -1.0f : -b - std::sqrt(disc);
 }
 
-enum Shader { ShBlackHole, ShBoson, ShWhiteHole, ShTzo, ShStrange, ShEmber, ShStar };
+enum Shader { ShBlackHole, ShBoson, ShWhiteHole, ShTzo, ShStrange, ShEmber, ShStar,
+              ShGasGiant, ShTerra, ShLava, ShMoon, ShPulsar, ShNebula, ShBinary, ShComet };
 
 const wchar_t* const kKindKeys[CelestialsSettings::kKinds] = {
     L"BlackHole", L"BosonStar", L"WhiteHole", L"ThorneZytkow", L"StrangeStar",
     L"ColdNeutronStar", L"RedDwarf", L"SunLike", L"BlueGiant", L"RedGiant",
+    L"GasGiant", L"RingedGiant", L"IceGiant", L"HotJupiter", L"EarthLike", L"LavaWorld",
+    L"CrateredMoon", L"IcyMoon", L"VolcanicMoon", L"HazyMoon",
+    L"Pulsar", L"PlanetaryNebula", L"MassTransfer", L"Comet",
 };
 
 constexpr float kBaseFov = 50.0f;
@@ -114,7 +126,11 @@ void CelestialsSaver::Initialize(Device& device, const SaverContext& ctx) {
         { g_BlackHole_ps, sizeof(g_BlackHole_ps) }, { g_Boson_ps, sizeof(g_Boson_ps) },
         { g_WhiteHole_ps, sizeof(g_WhiteHole_ps) }, { g_Tzo_ps, sizeof(g_Tzo_ps) },
         { g_Strange_ps, sizeof(g_Strange_ps) }, { g_Ember_ps, sizeof(g_Ember_ps) },
-        { g_Star_ps, sizeof(g_Star_ps) },
+        { g_Star_ps, sizeof(g_Star_ps) }, { g_GasGiant_ps, sizeof(g_GasGiant_ps) },
+        { g_Terra_ps, sizeof(g_Terra_ps) }, { g_Lava_ps, sizeof(g_Lava_ps) },
+        { g_Moon_ps, sizeof(g_Moon_ps) }, { g_Pulsar_ps, sizeof(g_Pulsar_ps) },
+        { g_Nebula_ps, sizeof(g_Nebula_ps) }, { g_Binary_ps, sizeof(g_Binary_ps) },
+        { g_Comet_ps, sizeof(g_Comet_ps) },
     };
     for (int i = 0; i < kShaders; ++i)
         ThrowIfFailed(d->CreatePixelShader(shaders[i].code, shaders[i].size, nullptr, &m_objectPs[i]), "CreatePixelShader(Celestials object)");
@@ -171,6 +187,15 @@ void CelestialsSaver::StartVisit(Kind kind) {
     XMFLOAT4 tint{ 0.5f + 0.5f * std::cos(kTwoPi * hue), 0.5f + 0.5f * std::cos(kTwoPi * (hue + 0.33f)), 0.5f + 0.5f * std::cos(kTwoPi * (hue + 0.67f)), 1.0f };
     v.sky = { tint.x * 0.8f + 0.1f, tint.y * 0.6f + 0.1f, tint.z * 0.9f + 0.15f, 1.0f };
     const bool glare = m_settings.reduceGlare;
+    // Planets need a star: placed off to one side of the starting view so the terminator shows.
+    auto setSun = [&](float size, V3 col, float disk, float turnLo, float turnHi) {
+        V3 e{ std::cos(v.elevation) * std::cos(v.azimuth), std::sin(v.elevation), std::cos(v.elevation) * std::sin(v.azimuth) };
+        V3 sdir = RotateAxis(e, { 0, 1, 0 }, rng.Range(turnLo, turnHi) * (rng.Chance(0.5f) ? 1.0f : -1.0f));
+        sdir.y += rng.Range(-0.2f, 0.35f);
+        v.sunDir = Norm(sdir);
+        v.sunSize = size;
+        v.sunColor = { col.x, col.y, col.z, disk };
+    };
 
     switch (kind) {
     case Kind::BlackHole:
@@ -278,6 +303,172 @@ void CelestialsSaver::StartVisit(Kind kind) {
         v.c[1] = C4(0.08f, 0.14f, 0.4f);
         v.c[2] = C4(0.63f, 0.75f, 1.0f);
         break;
+    case Kind::GasGiant:
+    case Kind::RingedGiant:
+    case Kind::IceGiant:
+    case Kind::HotJupiter: {
+        v.shader = ShGasGiant;
+        v.spinRate = 0.02f;
+        v.p[2] = { rng.Range(-0.4f, -0.15f), rng.Range(-kPi, kPi), 0.5f, 0.0f };
+        v.p[4] = { rng.Range(0.06f, 0.09f), rng.Range(1.9f, 2.5f), 0.12f, rng.Range(0.0f, kTwoPi) };
+        v.p[5] = { rng.Range(0.035f, 0.055f), rng.Range(3.0f, 3.5f), 0.07f, rng.Range(0.0f, kTwoPi) };
+        v.c[3] = C4(0.25f, 0.3f, 0.4f);
+        if (kind == Kind::GasGiant) {
+            v.camDist = rng.Range(3.4f, 4.0f);
+            v.p[0] = { rng.Range(7.0f, 11.0f), 1.0f, rng.Chance(0.8f) ? rng.Range(0.12f, 0.17f) : 0.0f, 0.012f };
+            int pal = rng.Int(0, 2);
+            if (pal == 0) { v.c[0] = C4(0.93f, 0.86f, 0.74f); v.c[1] = C4(0.62f, 0.42f, 0.28f); v.c[2] = C4(0.8f, 0.36f, 0.2f); }
+            else if (pal == 1) { v.c[0] = C4(0.9f, 0.83f, 0.62f); v.c[1] = C4(0.7f, 0.55f, 0.36f); v.c[2] = C4(0.95f, 0.9f, 0.8f); }
+            else { v.c[0] = C4(0.78f, 0.84f, 0.8f); v.c[1] = C4(0.45f, 0.5f, 0.55f); v.c[2] = C4(0.85f, 0.6f, 0.4f); }
+        } else if (kind == Kind::RingedGiant) {
+            v.camDist = rng.Range(5.2f, 6.0f);
+            v.axis = Norm(V3{ rng.Range(-0.45f, 0.45f), 1.0f, rng.Range(-0.45f, 0.45f) });
+            v.elevation = rng.Range(0.2f, 0.4f) * (rng.Chance(0.5f) ? 1.0f : -1.0f);
+            v.p[0] = { rng.Range(8.0f, 12.0f), 0.6f, rng.Chance(0.3f) ? 0.08f : 0.0f, 0.01f };
+            v.p[1] = { 1.25f, rng.Range(2.2f, 2.5f), 0.9f, 0.0f };
+            v.p[4] = { 0.05f, rng.Range(3.0f, 3.4f), 0.09f, rng.Range(0.0f, kTwoPi) };
+            v.p[5] = {};
+            v.c[0] = C4(0.93f, 0.85f, 0.64f); v.c[1] = C4(0.78f, 0.64f, 0.42f); v.c[2] = C4(0.95f, 0.92f, 0.85f);
+            v.c[4] = C4(0.9f, 0.82f, 0.68f);
+        } else if (kind == Kind::IceGiant) {
+            v.camDist = rng.Range(3.4f, 3.9f);
+            v.p[2].z = 0.9f;
+            if (rng.Chance(0.5f)) {   // Neptune-like: deep blue, a dark storm, fast jets
+                v.p[0] = { 6.0f, 0.35f, rng.Chance(0.7f) ? 0.1f : 0.0f, 0.02f };
+                v.c[0] = C4(0.5f, 0.68f, 0.95f); v.c[1] = C4(0.26f, 0.42f, 0.85f); v.c[2] = C4(0.1f, 0.16f, 0.42f);
+                v.c[3] = C4(0.4f, 0.6f, 1.0f);
+            } else {                  // Uranus-like: pale cyan, tipped on its side, faint rings
+                v.axis = Norm(V3{ 1.0f, rng.Range(-0.2f, 0.2f), rng.Range(-0.3f, 0.3f) });
+                v.p[0] = { 5.0f, 0.2f, 0.0f, 0.015f };
+                v.p[1] = { 1.7f, 2.05f, 0.2f, 0.0f };
+                v.c[0] = C4(0.52f, 0.8f, 0.86f); v.c[1] = C4(0.45f, 0.72f, 0.82f);
+                v.c[3] = C4(0.5f, 0.8f, 0.9f); v.c[4] = C4(0.5f, 0.55f, 0.6f);
+            }
+            v.p[5] = {};
+        } else {
+            v.camDist = rng.Range(3.5f, 4.0f);
+            v.p[0] = { 6.0f, 1.3f, 0.0f, 0.03f };
+            v.p[1] = { 0.0f, 0.0f, 0.0f, 1.3f };
+            v.p[2].z = 0.6f;
+            v.p[4] = {}; v.p[5] = {};
+            v.c[0] = C4(0.55f, 0.42f, 0.38f); v.c[1] = C4(0.24f, 0.15f, 0.16f);
+            v.c[3] = C4(0.8f, 0.5f, 0.4f); v.c[5] = C4(1.0f, 0.28f, 0.07f);
+        }
+        if (kind == Kind::HotJupiter) { setSun(0.2f, Rgb(1.0f, 0.86f, 0.7f) * 1.5f, 4.0f, 2.35f, 2.65f); v.wind = v.sunDir * -0.3f; }
+        else setSun(kind == Kind::IceGiant ? 0.005f : 0.012f, Rgb(1.0f, 0.97f, 0.92f) * 1.35f, 30.0f, 0.7f, 1.6f);
+        v.exposure = 1.0f; v.bloom = 0.3f; v.wide = 0.2f;
+        break;
+    }
+    case Kind::EarthLike:
+        v.shader = ShTerra;
+        v.camDist = rng.Range(3.1f, 3.6f);
+        v.spinRate = 0.025f;
+        v.p[0] = { rng.Range(0.5f, 0.56f), rng.Range(0.42f, 0.58f), 1.6f, 0.012f };
+        v.p[1] = { rng.Range(0.72f, 0.82f), 1.0f, rng.Range(1.5f, 2.2f), 0.0f };
+        v.p[4] = { 0.2f, rng.Range(2.6f, 3.0f), 0.05f, rng.Range(0.0f, kTwoPi) };
+        v.c[0] = C4(0.01f, 0.045f, 0.13f); v.c[1] = C4(0.03f, 0.2f, 0.3f); v.c[2] = C4(0.12f, 0.26f, 0.08f);
+        v.c[3] = C4(0.3f, 0.52f, 1.0f); v.c[4] = C4(0.62f, 0.5f, 0.32f); v.c[5] = C4(1.0f, 0.7f, 0.35f);
+        setSun(0.015f, Rgb(1.0f, 0.97f, 0.92f) * 1.4f, 30.0f, 0.9f, 1.8f);
+        break;
+    case Kind::LavaWorld:
+        v.shader = ShLava;
+        v.camDist = rng.Range(3.1f, 3.6f);
+        v.spinRate = 0.01f;
+        v.p[0] = { 7.0f, rng.Range(0.38f, 0.48f), 1.4f, 1.0f };
+        v.c[0] = C4(1.0f, 0.33f, 0.05f); v.c[1] = C4(0.07f, 0.06f, 0.06f); v.c[2] = C4(0.35f, 0.1f, 0.03f);
+        setSun(0.22f, Rgb(1.0f, 0.82f, 0.62f) * 1.5f, 4.0f, 2.35f, 2.65f);
+        v.exposure = 0.95f; v.bloom = 0.45f;
+        break;
+    case Kind::CrateredMoon:
+    case Kind::IcyMoon:
+    case Kind::VolcanicMoon:
+    case Kind::HazyMoon: {
+        v.shader = ShMoon;
+        v.camDist = rng.Range(3.2f, 3.6f);
+        v.orbitScale = 0.5f;
+        v.spinRate = 0.01f;
+        v.elevation = rng.Range(-0.2f, 0.25f);
+        // The parent planet sits far behind the moon, off to one side, and drifts across as we orbit.
+        V3 e{ std::cos(v.elevation) * std::cos(v.azimuth), std::sin(v.elevation), std::cos(v.elevation) * std::sin(v.azimuth) };
+        float pd = rng.Range(50.0f, 60.0f);
+        V3 pdir = Norm(RotateAxis(e * -1.0f, { 0, 1, 0 }, -rng.Range(0.3f, 0.42f)) + V3{ 0.0f, rng.Range(0.08f, 0.2f), 0.0f });
+        v.p[1] = F4(pdir * pd, rng.Range(13.0f, 17.0f));
+        v.p[2] = { 0.0f, 0.0f, rng.Range(8.0f, 11.0f), 0.0f };
+        v.c[4] = C4(0.93f, 0.86f, 0.74f); v.c[5] = C4(0.62f, 0.42f, 0.28f);
+        if (kind == Kind::CrateredMoon) {
+            v.p[0] = { 0.0f, 1.0f, 0.0f, 0.0f };
+            v.c[0] = C4(0.62f, 0.6f, 0.57f); v.c[1] = C4(0.3f, 0.3f, 0.31f);
+            if (rng.Chance(0.5f)) { v.c[4] = C4(0.55f, 0.72f, 0.95f); v.c[5] = C4(0.3f, 0.45f, 0.85f); }
+        } else if (kind == Kind::IcyMoon) {
+            v.p[0] = { 1.0f, 1.0f, 0.0f, 0.0f };
+            v.c[0] = C4(0.92f, 0.9f, 0.84f); v.c[1] = C4(0.72f, 0.6f, 0.5f); v.c[2] = C4(0.55f, 0.3f, 0.18f);
+        } else if (kind == Kind::VolcanicMoon) {
+            v.p[0] = { 2.0f, 1.0f, 5.0f, 0.0f };
+            v.c[0] = C4(0.95f, 0.85f, 0.35f); v.c[1] = C4(0.9f, 0.6f, 0.25f); v.c[2] = C4(0.75f, 0.25f, 0.1f);
+        } else {
+            v.p[0] = { 3.0f, 0.0f, 0.0f, 0.85f };
+            v.p[1].w *= 0.6f;
+            v.p[2] = { 1.3f, 2.3f, 9.0f, 0.0f };
+            v.c[0] = C4(0.7f, 0.4f, 0.12f); v.c[3] = C4(0.4f, 0.6f, 0.95f);
+            v.c[4] = C4(0.93f, 0.85f, 0.64f); v.c[5] = C4(0.78f, 0.64f, 0.42f);
+        }
+        setSun(0.01f, Rgb(1.0f, 0.97f, 0.92f) * 1.35f, 30.0f, 0.8f, 1.7f);
+        break;
+    }
+    case Kind::Pulsar:
+        v.shader = ShPulsar;
+        v.camDist = rng.Range(15.0f, 17.0f);
+        v.axis = Norm(V3{ rng.Range(-0.12f, 0.12f), 1.0f, rng.Range(-0.12f, 0.12f) });
+        v.elevation = rng.Range(0.12f, 0.35f) * (rng.Chance(0.5f) ? 1.0f : -1.0f);
+        v.spinRate = 1.6f;
+        v.magIncl = rng.Range(0.45f, 0.6f);
+        v.p[0] = { 22.0f, 0.45f, 1.2f, 5.0f };
+        v.p[1] = { 0.3f, 0.1f, 0.5f, 0.0f };
+        v.c[0] = C4(0.75f, 0.85f, 1.0f); v.c[1] = C4(0.55f, 0.75f, 1.0f);
+        v.c[2] = C4(0.45f, 0.6f, 1.0f); v.c[3] = C4(1.0f, 0.35f, 0.25f);
+        v.bloom = 0.35f; v.wide = 0.15f;
+        break;
+    case Kind::PlanetaryNebula: {
+        v.shader = ShNebula;
+        v.camDist = rng.Range(13.0f, 16.0f);
+        v.axis = Norm(RandomUnit(rng) + V3{ 0.0f, 0.6f, 0.0f });
+        v.spinRate = 0.0f;
+        static const float kLobes[3] = { 0.0f, 0.25f, 0.6f };
+        static const int kSteps[3] = { 40, 56, 72 };
+        v.p[0] = { 3.6f, rng.Range(0.12f, 0.2f), kLobes[rng.Int(0, 2)], 0.12f };
+        v.p[1] = { rng.Chance(0.5f) ? 0.55f : 0.0f, 0.6f, 1.0f, static_cast<float>(kSteps[m_settings.quality]) };
+        v.c[0] = rng.Chance(0.7f) ? C4(0.1f, 0.75f, 0.7f) : C4(0.3f, 0.5f, 1.0f);
+        v.c[1] = C4(1.0f, 0.25f, 0.25f); v.c[2] = C4(1.0f, 0.55f, 0.3f); v.c[3] = C4(0.8f, 0.9f, 1.0f);
+        v.occluder = 0;
+        break;
+    }
+    case Kind::MassTransfer:
+        v.shader = ShBinary;
+        v.camDist = rng.Range(12.0f, 14.0f);
+        v.elevation = rng.Range(0.25f, 0.5f) * (rng.Chance(0.7f) ? 1.0f : -1.0f);
+        v.donorDist = 5.2f;
+        v.donorRate = 0.05f;
+        v.donorPhase = rng.Range(0.0f, kTwoPi);
+        v.p[0] = { 0.0f, 0.0f, 0.0f, 2.5f };
+        v.p[1] = { 0.12f, 1.5f, 1.2f, 0.35f };
+        v.c[0] = C4(1.0f, 0.55f, 0.25f); v.c[1] = C4(0.5f, 0.12f, 0.04f);
+        v.c[2] = C4(0.75f, 0.85f, 1.0f); v.c[3] = C4(1.0f, 0.55f, 0.25f); v.c[4] = C4(0.85f, 0.9f, 1.0f);
+        v.occluder = 0;
+        v.bloom = 0.45f;
+        break;
+    case Kind::Comet: {
+        v.shader = ShComet;
+        v.camDist = rng.Range(5.0f, 6.0f);
+        v.spinRate = 0.3f;
+        setSun(0.02f, Rgb(1.0f, 0.97f, 0.92f) * 1.4f, 25.0f, 1.2f, 1.9f);
+        V3 side = Norm(Cross({ 0, 1, 0 }, v.sunDir));
+        v.p[0] = { 1.2f, 30.0f, 22.0f, 1.0f };
+        v.p[1] = F4(Norm(v.sunDir * -1.0f + side * 0.45f), 0.1f);
+        v.c[0] = C4(0.45f, 0.95f, 0.8f); v.c[1] = C4(0.35f, 0.55f, 1.0f); v.c[2] = C4(1.0f, 0.9f, 0.7f); v.c[3] = C4(0.12f, 0.11f, 0.1f);
+        v.wind = v.sunDir * -0.35f;
+        v.occluder = 0;
+        break;
+    }
     case Kind::RedGiant:
     default:
         v.shader = ShStar;
@@ -469,6 +660,63 @@ void CelestialsSaver::UpdateEmitters(float dt) {
                    Rgb(c.x, c.y, c.z) * rng.Range(1.0f, 2.2f), rng.Range(0.025f, 0.05f), 0, 0, rng.Range(6.0f, 9.0f), 0, -0.8f, 0.15f });
         }
         break;
+    case Kind::HotJupiter:
+        // The star boils the atmosphere off the day side; the gas streams away into a tail.
+        m_emitAcc += dt * 160.0f;
+        while (m_emitAcc >= 1.0f) {
+            m_emitAcc -= 1.0f;
+            V3 n = RandomUnit(rng);
+            if (Dot(n, v.sunDir) < 0.0f) n = n * -1.0f;
+            Emit({ n * 1.03f, n * rng.Range(0.04f, 0.12f), Rgb(0.5f, 0.65f, 1.0f) * rng.Range(0.1f, 0.22f),
+                   rng.Range(0.01f, 0.022f), 0.12f, 0, rng.Range(12.0f, 16.0f), 0, 0, 0, 1.0f });
+        }
+        break;
+    case Kind::LavaWorld:
+        m_emitAcc += dt * 25.0f;
+        while (m_emitAcc >= 1.0f) {
+            m_emitAcc -= 1.0f;
+            V3 n = RandomUnit(rng);
+            Emit({ n * 1.01f, n * rng.Range(0.1f, 0.35f), Rgb(1.0f, 0.5f, 0.1f) * rng.Range(1.0f, 2.5f),
+                   rng.Range(0.008f, 0.016f), 0, 0, rng.Range(2.0f, 4.0f), 0, 0.25f, 0.1f });
+        }
+        break;
+    case Kind::VolcanicMoon:
+        // Umbrella plumes: a fountain that arcs up and falls back around the vent.
+        if (m_burstTimer <= 0) {
+            m_burstTimer = rng.Range(0.8f, 2.0f);
+            V3 n = RandomUnit(rng);
+            V3 t1 = Perp(n), t2 = Cross(n, t1);
+            for (int i = 0; i < 140; ++i) {
+                float a = rng.Range(0.0f, kTwoPi), spread = rng.Range(0.0f, 0.16f);
+                V3 vel = n * rng.Range(0.25f, 0.4f) + (t1 * std::cos(a) + t2 * std::sin(a)) * spread;
+                V3 col = rng.Chance(0.6f) ? Rgb(0.6f, 0.75f, 1.0f) * 0.45f : Rgb(1.0f, 0.85f, 0.4f) * 0.4f;
+                Emit({ n * 1.01f, vel, col * 0.7f, rng.Range(0.006f, 0.013f), 0.05f, 0, rng.Range(5.0f, 7.0f), 0, 0.12f, 0 });
+            }
+        }
+        break;
+    case Kind::Comet:
+        m_emitAcc += dt * 40.0f;
+        while (m_emitAcc >= 1.0f) {
+            m_emitAcc -= 1.0f;
+            V3 d = Norm(RandomUnit(rng) + v.sunDir * 1.2f);
+            Emit({ RandomUnit(rng) * 0.06f, d * rng.Range(0.08f, 0.2f), Rgb(1.0f, 0.9f, 0.7f) * rng.Range(0.05f, 0.12f),
+                   rng.Range(0.008f, 0.02f), 0.15f, 0, rng.Range(10.0f, 16.0f), 0, 0, 0, 1.0f });
+        }
+        break;
+    case Kind::MassTransfer: {
+        // Gas spills over the donor's tip and spirals down into the disk.
+        V3 D = DonorPos();
+        V3 toward = Norm(D * -1.0f);
+        V3 orbitDir = Norm(Cross({ 0, 1, 0 }, D));
+        float tip = Len(D) - v.p[0].w * (1.0f + v.p[1].w) * 0.97f;
+        m_emitAcc += dt * 150.0f;
+        while (m_emitAcc >= 1.0f) {
+            m_emitAcc -= 1.0f;
+            Emit({ Norm(D) * tip + RandomUnit(rng) * 0.05f, toward * rng.Range(0.3f, 0.45f) + orbitDir * 0.6f,
+                   Rgb(1.0f, 0.6f, 0.3f) * rng.Range(0.8f, 1.6f), rng.Range(0.03f, 0.05f), 0, 0, 3.5f, 0, 1.8f, 0.08f });
+        }
+        break;
+    }
     case Kind::Ember:
         m_emitAcc += dt * 5.0f;
         while (m_emitAcc >= 1.0f) {
@@ -495,7 +743,7 @@ void CelestialsSaver::UpdateParticles(float dt) {
             continue;
         }
         float d2 = r2 + soft;
-        V3 acc = p.pos * (-p.pull / (d2 * std::sqrt(d2)));
+        V3 acc = p.pos * (-p.pull / (d2 * std::sqrt(d2))) + m_visit.wind * p.wind;
         p.vel = (p.vel + acc * dt) * std::max(0.0f, 1.0f - p.drag * dt);
         p.pos = p.pos + p.vel * dt;
         ++i;
@@ -515,7 +763,7 @@ void CelestialsSaver::Update(float dt, double) {
     m_clock += dt;
     m_objTime += dt;
     m_spin += dt * m_visit.spinRate;
-    m_visit.azimuth += dt * (0.012f + 0.008f * m_settings.orbit);
+    m_visit.azimuth += dt * (0.012f + 0.008f * m_settings.orbit) * m_visit.orbitScale;
     m_phaseTime += dt;
 
     const bool warp = m_settings.warp;
@@ -569,6 +817,17 @@ void CelestialsSaver::Update(float dt, double) {
             w.angle = m_rng->Range(0.0f, kTwoPi);
         }
     }
+}
+
+// The pulsar's magnetic (beam) axis: tilted from the spin axis and carried round by the spin.
+CelestialsSaver::V3 CelestialsSaver::PulsarAxis() const {
+    V3 tilted = RotateAxis(m_visit.axis, Perp(m_visit.axis), m_visit.magIncl);
+    return Norm(RotateAxis(tilted, m_visit.axis, m_spin));
+}
+
+// The mass-transfer binary's donor star, orbiting the white dwarf at the origin.
+CelestialsSaver::V3 CelestialsSaver::DonorPos() const {
+    return RotateAxis(V3{ m_visit.donorDist, 0.0f, 0.0f }, { 0, 1, 0 }, m_visit.donorPhase + m_objTime * m_visit.donorRate);
 }
 
 // ---- rendering ----
@@ -639,6 +898,27 @@ void CelestialsSaver::RenderParticles(Device& device, const V3& eye, const V3& f
         }
     }
 
+    // Pulsar: charged particles sliding along the dipole field lines, which turn with the star.
+    if (m_visit.kind == Kind::Pulsar) {
+        V3 m = PulsarAxis(), e1 = Perp(m), e2 = Cross(m, e1);
+        for (int k = 0; k < 10; ++k) {
+            float phi = k * kTwoPi / 10.0f, L = (k % 2) ? 3.2f : 4.6f;
+            V3 out = e1 * std::cos(phi) + e2 * std::sin(phi);
+            for (int j = 0; j < 28; ++j) {
+                float th = 0.25f + Wrap01(j / 28.0f + m_objTime * 0.06f) * (kPi - 0.5f);
+                float st = std::sin(th), r = L * st * st;
+                if (r < 1.1f) continue;
+                V3 p = out * (r * st) + m * (r * std::cos(th));
+                if (hidden(p)) continue;
+                float x, y, z;
+                if (!project(p, x, y, z)) continue;
+                float size = std::max(0.05f * pxPerUnit / z, 1.2f);
+                float k2 = 0.3f * st;
+                m_sprites.Push(x, y, size, size, { 0.45f * k2, 0.6f * k2, 1.0f * k2, 1.0f });
+            }
+        }
+    }
+
     // Warp streaks radiating from the centre.
     if (m_warp > 0.01f) {
         float cx = W * 0.5f, cy = H * 0.5f, halfDiag = std::sqrt(cx * cx + cy * cy);
@@ -688,8 +968,12 @@ void CelestialsSaver::Render(Device& device, SwapChain& swap) {
     cb.camUp = F4(up, tanHalf);
     cb.camFwd = F4(fwd, 2.0f * tanHalf / m_scene.Height());
     cb.axis = F4(axis, v.seed);
-    for (int i = 0; i < 4; ++i) { cb.p[i] = v.p[i]; cb.c[i] = v.c[i]; }
+    for (int i = 0; i < 6; ++i) { cb.p[i] = v.p[i]; cb.c[i] = v.c[i]; }
+    if (v.kind == Kind::Pulsar) { V3 m = PulsarAxis(); cb.p[2] = F4(m, 0.0f); }
+    if (v.kind == Kind::MassTransfer) { V3 d = DonorPos(); cb.p[0] = F4(d, v.p[0].w); }
     cb.sky = v.sky;
+    cb.sun = F4(v.sunDir, v.sunSize);
+    cb.sunColor = v.sunColor;
     cb.misc = { static_cast<float>(kSteps[m_settings.quality]), m_settings.disk ? 1.0f : 0.0f, 0.0f, m_spin };
     m_sceneCb.Update(ctx, cb);
 

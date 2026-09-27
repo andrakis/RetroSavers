@@ -13,6 +13,9 @@ namespace {
 const int kObjectIds[CelestialsSettings::kKinds] = {
     IDC_OBJ_BLACKHOLE, IDC_OBJ_BOSON, IDC_OBJ_WHITEHOLE, IDC_OBJ_TZO, IDC_OBJ_STRANGE,
     IDC_OBJ_EMBER, IDC_OBJ_REDDWARF, IDC_OBJ_SUNLIKE, IDC_OBJ_BLUEGIANT, IDC_OBJ_REDGIANT,
+    IDC_OBJ_GASGIANT, IDC_OBJ_RINGEDGIANT, IDC_OBJ_ICEGIANT, IDC_OBJ_HOTJUPITER, IDC_OBJ_EARTHLIKE, IDC_OBJ_LAVAWORLD,
+    IDC_OBJ_CRATEREDMOON, IDC_OBJ_ICYMOON, IDC_OBJ_VOLCANICMOON, IDC_OBJ_HAZYMOON,
+    IDC_OBJ_PULSAR, IDC_OBJ_NEBULA, IDC_OBJ_BINARY, IDC_OBJ_COMET,
 };
 
 void Mirror(HWND dlg) {
@@ -76,6 +79,10 @@ BOOL CelestialsConfigDialog(HWND dlg, UINT msg, WPARAM wParam, LPARAM) {
             return TRUE;
         case IDC_DEFAULTS:
             Apply(dlg, CelestialsSettings{});
+            return TRUE;
+        case IDC_ALL:
+        case IDC_NONE:
+            for (int id : kObjectIds) dlg::SetCheck(dlg, id, LOWORD(wParam) == IDC_ALL);
             return TRUE;
         }
         break;

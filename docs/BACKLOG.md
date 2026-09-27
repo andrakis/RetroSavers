@@ -293,6 +293,13 @@ Design:
 - Settings: 10 object checkboxes, seconds per object (5-120), orbit speed, accretion disk,
   warp jump (off = fade through black), reduce glare, quality (50 / 75 / 100 % render scale and
   march steps).
+- Added 2026-09-27: an info card per object (description + estimated figures, `Info.cpp`), and
+  14 more kinds (24 in all, new ones appended to `Kind` so registry keys stay stable): gas / ringed /
+  ice giant and hot Jupiter (`GasGiant_ps`: jet-sheared bands, storm, rings with shadows both ways,
+  transiting moons), Earth-like (`Terra_ps`), lava world (`Lava_ps`), cratered / icy / volcanic / hazy
+  moons with the parent planet behind (`Moon_ps`, analytic crater bump field), pulsar, planetary
+  nebula (raymarched emission), mass-transfer binary (SDF teardrop donor + disk + particle stream)
+  and comet. Planets are lit by a star (`gSun`) drawn in the sky; particles gained a wind term.
 
 ---
 

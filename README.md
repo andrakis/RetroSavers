@@ -32,7 +32,7 @@ C++20, Direct3D 11, no third-party code — only the Windows SDK (`scrnsave.lib`
 | `Energy.scr` | Windows Energy (Vista) | A bundle of glowing streamers waving across the screen with bloom and motion streaks; tintable |
 | `AfterDark.scr` | After Dark classics (homage) | Starry Night (city windows lighting up, meteors), Warp, Rain (ripples refracting the desktop), Flying Toasters |
 | `Aquarium.scr` | Fish! / SereneScreen-style tank | Eight procedural species that school, wander, dart and nibble the kelp; dunes, rocks, treasure chest, caustics, light shafts, bubbles; tintable water |
-| `Celestials.scr` | Space-sim star gazing | Slow orbit round a lensing black hole, boson star, white hole, Thorne-Zytkow object, strange star, cold neutron star or an ordinary star (red dwarf / sun-like / blue giant / red giant) with flares, CMEs and prominences; an info card describes each object with estimated figures; warp-jumps to a new object every N seconds |
+| `Celestials.scr` | Space-sim star gazing | Slow orbit round one of 24 objects: a lensing black hole, boson star, white hole, Thorne-Zytkow object, strange star, cold neutron star, pulsar, four kinds of star, a mass-transfer binary, a planetary nebula, a comet, six kinds of planet (gas, ringed, ice giant, hot Jupiter, Earth-like, lava) and four moons in front of their parent planet; an info card describes each with estimated figures; warp-jumps to a new object every N seconds |
 
 ## Building
 
