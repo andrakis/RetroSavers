@@ -31,9 +31,11 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="CelestialsSaver.cpp" />
     <ClCompile Include="Config.cpp" />
+    <ClCompile Include="Info.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CelestialsSaver.h" />
+    <ClInclude Include="Info.h" />
     <ClInclude Include="resource.h" />
     <None Include="Shaders\Celestial.hlsli" />
   </ItemGroup>

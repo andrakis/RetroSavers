@@ -39,6 +39,7 @@ BEGIN
     AUTOCHECKBOX    "Black hole accretion &disk", IDC_DISK, 12, 150, 130, 10
     AUTOCHECKBOX    "&Warp jump between objects", IDC_WARP, 12, 164, 130, 10
     AUTOCHECKBOX    "Reduce gl&are (white hole)", IDC_GLARE, 146, 150, 126, 10
+    AUTOCHECKBOX    "Show object &info", IDC_INFO, 146, 164, 126, 10
 
     LTEXT           "&Quality:", -1, 12, 184, 70, 10
     COMBOBOX        IDC_QUALITY, 84, 182, 120, 60, CBS_DROPDOWNLIST | WS_TABSTOP

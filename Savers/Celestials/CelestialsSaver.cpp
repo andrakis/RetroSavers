@@ -3,6 +3,7 @@
 #include "Gfx/SwapChain.h"
 #include "Gfx/TextureFactory.h"
 #include "Util/MathUtil.h"
+#include "Info.h"
 #include "Shaders/BlackHole_ps.h"
 #include "Shaders/Boson_ps.h"
 #include "Shaders/WhiteHole_ps.h"
@@ -77,6 +78,7 @@ CelestialsSettings CelestialsSettings::Load(const Settings& s) {
     v.disk = s.GetBool(L"Disk", v.disk);
     v.warp = s.GetBool(L"Warp", v.warp);
     v.reduceGlare = s.GetBool(L"ReduceGlare", v.reduceGlare);
+    v.info = s.GetBool(L"ShowInfo", v.info);
     v.quality = Clamp(s.GetInt(L"Quality", v.quality), 0, 2);
     if (!v.AnyEnabled()) for (bool& e : v.enabled) e = true;
     return v;
@@ -89,6 +91,7 @@ void CelestialsSettings::Save(Settings& s) const {
     s.SetBool(L"Disk", disk);
     s.SetBool(L"Warp", warp);
     s.SetBool(L"ReduceGlare", reduceGlare);
+    s.SetBool(L"ShowInfo", info);
     s.SetInt(L"Quality", quality);
 }
 
@@ -292,6 +295,13 @@ void CelestialsSaver::StartVisit(Kind kind) {
 
     m_visit = v;
     m_started = true;
+    InfoCard info = MakeInfo(kind, rng, m_settings.disk);
+    m_infoTitle = std::move(info.title);
+    m_infoSubtitle = std::move(info.subtitle);
+    m_infoBody = std::move(info.body);
+    m_infoStats = std::move(info.stats);
+    m_accent = kind == Kind::Strange ? v.c[2] : (kind == Kind::Boson ? XMFLOAT4{ 0.7f, 0.7f, 0.8f, 1 } : v.c[0]);
+    m_cardDirty = true;
     m_objTime = rng.Range(5.0f, 40.0f);
     m_spin = rng.Range(0.0f, kTwoPi);
     m_particles.clear();
@@ -724,6 +734,10 @@ void CelestialsSaver::Render(Device& device, SwapChain& swap) {
     ctx->PSSetSamplers(0, 1, &samp);
     m_post.Draw(ctx, m_compositePs.Get());
     ctx->PSSetShaderResources(0, 3, none);
+
+    // 5. The description card, over the finished image.
+    if (m_cardDirty) BuildCard(device);
+    RenderCard(device);
 }
 
 void CelestialsSaver::Resize(int width, int height) {
@@ -735,4 +749,101 @@ void CelestialsSaver::Resize(int width, int height) {
     m_halfTmp = RenderTexture{};
     m_wide = RenderTexture{};
     m_wideTmp = RenderTexture{};
+    m_cardDirty = true;
+}
+
+// ---- description card ----
+
+// Lays the card out with GDI (title, class line, word-wrapped description, a two-column table of
+// figures, a footnote) and rasterises it into one alpha mask; dim text is drawn in grey so it
+// comes out fainter.
+void CelestialsSaver::BuildCard(Device& device) {
+    m_cardDirty = false;
+    m_cardW = m_cardH = 0;
+    const int H = m_ctx.height;
+    if (!m_settings.info || H < 320) return;
+    const float s = H / 1080.0f;
+    const int w = Clamp(static_cast<int>(470 * s), 260, 900);
+    const int gap = std::max(static_cast<int>(10 * s), 3);
+
+    auto font = [s](float px, int weight = FW_NORMAL, bool italic = false) {
+        LOGFONTW lf = TextureFactory::MakeLogFont(L"Segoe UI", static_cast<int>(px * s), weight, italic);
+        return CreateFontIndirectW(&lf);
+    };
+    HFONT fTitle = font(28.0f, FW_SEMIBOLD), fSub = font(14.0f), fBody = font(15.5f), fStat = font(14.5f), fFoot = font(12.0f, FW_NORMAL, true);
+
+    HDC screen = GetDC(nullptr);
+    HDC dc = CreateCompatibleDC(screen);
+    auto measure = [&](HFONT f, const std::wstring& t, int width, UINT flags) {
+        HGDIOBJ old = SelectObject(dc, f);
+        RECT r{ 0, 0, width, 0 };
+        DrawTextW(dc, t.c_str(), -1, &r, DT_CALCRECT | DT_NOPREFIX | flags);
+        SelectObject(dc, old);
+        return r;
+    };
+    const std::wstring foot = L"Figures are estimates for an object of this kind.";
+    const int yTitle = 0;
+    const int ySub = yTitle + measure(fTitle, m_infoTitle, w, DT_WORDBREAK).bottom + gap / 3;
+    const int yBody = ySub + measure(fSub, m_infoSubtitle, w, DT_WORDBREAK).bottom + gap + gap / 2;
+    const int yStats = yBody + measure(fBody, m_infoBody, w, DT_WORDBREAK).bottom + gap + gap / 2;
+    int labelW = 0;
+    for (const auto& st : m_infoStats) labelW = std::max<int>(labelW, measure(fStat, st.first, 0, DT_SINGLELINE).right);
+    labelW += 2 * gap;
+    const int rowH = measure(fStat, L"Mg", 0, DT_SINGLELINE).bottom + gap / 4;
+    const int yFoot = yStats + rowH * static_cast<int>(m_infoStats.size()) + gap;
+    const int h = yFoot + measure(fFoot, foot, w, DT_WORDBREAK).bottom + 2;
+    DeleteDC(dc);
+    ReleaseDC(nullptr, screen);
+
+    Image img = TextureFactory::GdiMask(w, h, [&](HDC d) {
+        SetBkMode(d, TRANSPARENT);
+        auto text = [&](HFONT f, COLORREF c, const std::wstring& t, RECT r, UINT flags) {
+            HGDIOBJ old = SelectObject(d, f);
+            SetTextColor(d, c);
+            DrawTextW(d, t.c_str(), -1, &r, DT_NOPREFIX | flags);
+            SelectObject(d, old);
+        };
+        text(fTitle, RGB(255, 255, 255), m_infoTitle, { 0, yTitle, w, ySub }, DT_WORDBREAK);
+        text(fSub, RGB(165, 165, 165), m_infoSubtitle, { 0, ySub, w, yBody }, DT_WORDBREAK);
+        text(fBody, RGB(228, 228, 228), m_infoBody, { 0, yBody, w, yStats }, DT_WORDBREAK);
+        int y = yStats;
+        for (const auto& st : m_infoStats) {
+            text(fStat, RGB(150, 150, 150), st.first, { 0, y, labelW, y + rowH }, DT_SINGLELINE);
+            text(fStat, RGB(255, 255, 255), st.second, { labelW, y, w, y + rowH }, DT_SINGLELINE | DT_END_ELLIPSIS);
+            y += rowH;
+        }
+        text(fFoot, RGB(115, 115, 115), foot, { 0, yFoot, w, h }, DT_WORDBREAK);
+    });
+    for (HFONT f : { fTitle, fSub, fBody, fStat, fFoot }) DeleteObject(f);
+
+    m_card.FromImage(device, img, false);
+    m_cardW = w;
+    m_cardH = h;
+}
+
+// Fades in once the object has arrived and out just before the next jump.
+float CelestialsSaver::CardAlpha() const {
+    if (m_phase != Phase::Hold) return 0.0f;
+    float hold = static_cast<float>(m_settings.seconds);
+    return Smoothstep(0.6f, 2.0f, m_phaseTime) * (1.0f - Smoothstep(hold - 1.2f, hold, m_phaseTime));
+}
+
+void CelestialsSaver::RenderCard(Device& device) {
+    float a = CardAlpha();
+    if (a <= 0.005f || m_cardW <= 0) return;
+    const float s = m_ctx.height / 1080.0f;
+    const float pad = std::round(18 * s), margin = std::round(32 * s);
+    const float panelW = m_cardW + 2 * pad, panelH = m_cardH + 2 * pad;
+    const float left = margin, top = std::round(m_ctx.height - margin - panelH);
+    const States& states = m_post.GetStates();
+
+    m_sprites.Begin(m_ctx.width, m_ctx.height);
+    m_sprites.Push(left + panelW * 0.5f, top + panelH * 0.5f, panelW, panelH, { 0.01f, 0.015f, 0.03f, 0.6f * a });
+    float bar = std::max(std::round(3 * s), 2.0f);
+    m_sprites.Push(left + bar * 0.5f, top + panelH * 0.5f, bar, panelH, { m_accent.x, m_accent.y, m_accent.z, 0.9f * a });
+    m_sprites.End(device, nullptr, states.AlphaBlend());
+
+    m_sprites.Begin(m_ctx.width, m_ctx.height);
+    m_sprites.Push(left + pad + m_cardW * 0.5f, top + pad + m_cardH * 0.5f, static_cast<float>(m_cardW), static_cast<float>(m_cardH), { 1, 1, 1, a });
+    m_sprites.End(device, &m_card, states.AlphaBlend(), nullptr, states.PointClamp());
 }

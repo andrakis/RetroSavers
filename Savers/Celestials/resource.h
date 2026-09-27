@@ -20,3 +20,4 @@
 #define IDC_WARP             1017
 #define IDC_GLARE            1018
 #define IDC_QUALITY          1019
+#define IDC_INFO             1020

@@ -27,6 +27,7 @@ void Apply(HWND dlg, const CelestialsSettings& s) {
     dlg::SetCheck(dlg, IDC_DISK, s.disk);
     dlg::SetCheck(dlg, IDC_WARP, s.warp);
     dlg::SetCheck(dlg, IDC_GLARE, s.reduceGlare);
+    dlg::SetCheck(dlg, IDC_INFO, s.info);
     const wchar_t* const quality[] = { L"Low (50% resolution)", L"Medium (75% resolution)", L"High (full resolution)" };
     dlg::FillCombo(dlg, IDC_QUALITY, quality, 3, s.quality);
     Mirror(dlg);
@@ -40,6 +41,7 @@ CelestialsSettings Collect(HWND dlg) {
     s.disk = dlg::GetCheck(dlg, IDC_DISK);
     s.warp = dlg::GetCheck(dlg, IDC_WARP);
     s.reduceGlare = dlg::GetCheck(dlg, IDC_GLARE);
+    s.info = dlg::GetCheck(dlg, IDC_INFO);
     s.quality = dlg::GetComboIndex(dlg, IDC_QUALITY);
     return s;
 }

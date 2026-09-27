@@ -5,6 +5,8 @@
 #include "Gfx/RenderTexture.h"
 #include "Gfx/SpriteBatch2D.h"
 #include "Gfx/Texture.h"
+#include <string>
+#include <utility>
 #include <vector>
 
 // Celestials: the camera slowly orbits one strange (or ordinary) stellar object, then
@@ -22,6 +24,7 @@ struct CelestialsSettings {
     bool disk = true;          // black hole accretion disk
     bool warp = true;          // warp jump (off = fade through black)
     bool reduceGlare = false;
+    bool info = true;          // description card
     int quality = Medium;
 
     static const wchar_t* KindKey(int kind);
@@ -80,6 +83,9 @@ private:
     void Emit(const Particle& p);
     void Flare(float scale);
     void Cme(float scale);
+    void BuildCard(rs::Device& device);
+    void RenderCard(rs::Device& device);
+    float CardAlpha() const;
     void RenderParticles(rs::Device& device, const V3& eye, const V3& fwd, const V3& up, const V3& right, float fovY);
     float RenderScale() const;
 
@@ -110,5 +116,13 @@ private:
     std::vector<Particle> m_particles;
     std::vector<Loop> m_loops;
     std::vector<WarpStar> m_warpStars;
+
+    // Description card: text rolled per visit, rasterised on the render thread.
+    std::wstring m_infoTitle, m_infoSubtitle, m_infoBody;
+    std::vector<std::pair<std::wstring, std::wstring>> m_infoStats;
+    DirectX::XMFLOAT4 m_accent{ 1, 1, 1, 1 };
+    rs::Texture m_card;
+    int m_cardW = 0, m_cardH = 0;
+    bool m_cardDirty = true;
     float m_flareTimer = 0, m_cmeTimer = 0, m_burstTimer = 0, m_emitAcc = 0, m_emitAcc2 = 0;
 };
